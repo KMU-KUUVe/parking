@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(lane_detector)
+project(parking)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++11)
@@ -13,7 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
 	cv_bridge
 	OpenCV REQUIRED
 	roscpp
-    std_msgs 
+    	std_msgs 
 	sensor_msgs
 	image_transport
 )
@@ -147,9 +147,9 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(lane_detector src/main.cpp src/LaneDetector.cpp src/LaneDetectorNode.cpp)
-add_dependencies(lane_detector ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(lane_detector
+add_executable(parking src/main.cpp src/Parking.cpp src/ParkingNode.cpp)
+add_dependencies(parking ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(parking
   ${catkin_LIBRARIES}
 )
 
@@ -168,7 +168,6 @@ target_link_libraries(lane_detector
 #############
 ## Install ##
 #############
-
 # all install targets should use catkin DESTINATION variables
 # See http://ros.org/doc/api/catkin/html/adv_user_guide/variables.html
 

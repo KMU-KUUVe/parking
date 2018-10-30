@@ -1,21 +1,22 @@
 #include "ros/ros.h"
 #include <iostream>
-#include "lane_detector/LaneDetectorNode.h"
+#include "parking/ParkingNode.h"
 #include "opencv2/opencv.hpp"
 
 int main(int argc, char** argv)
 {
-	ros::init(argc, argv, "lane_detector");
+	ros::init(argc, argv, "parking");
 
-#if 1	// using camera
-	LaneDetectorNode lane_detector_node;
+#if 0	// using camera
+	ParkingNode parking_node;
+	parking_node.parkingdetect();
 
 	ros::spin();
 
 #else	// using mp4 file
-	LaneDetectorNode lane_detector_node("../test/challenge.mp4");
-
-	lane_detector_node.run_test();
+	ParkingNode parking_node("../challenge.mp4");
+	parking_node.parkingdetect();
+	parking_node.run_test();
 
 #endif
 
