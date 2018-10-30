@@ -20,7 +20,7 @@ int stop_distance = 0;
 int stop_time = 0;
 
 getRosParamForUpdate();
-parking_ptr_ = unique_ptr<Parking>(new Parking(resize_width, resize_height, steer_max_angle, detect_line_count, (double)stop_distance / 100, stop_time));
+
 }
 
 
@@ -39,7 +39,6 @@ void ParkingNode::imageCallback(const sensor_msgs::ImageConstPtr& image)
 	} catch(const std::runtime_error& e) {
 		cerr << e.what() << endl;
 	}
-
     getRosParamForUpdate();
 
 
@@ -81,20 +80,15 @@ int ParkingNode::parkingstart()
 		frame_count++;
 
 		resize(frame, frame, Size(ncols / resize_n, nrows / resize_n));
-
 		img_denoise = parking.deNoise(frame);
-
-
 		parking.filter_colors(img_denoise, img_mask2);
-
-
-		//Mat mask = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3), cv::Point(1, 1));
-		//dilate(img_mask2, img_mask2, mask, Point(-1, -1), 3);
-
     img_mask = parking.mask(img_mask2,Mask_method);
     imshow("img_mask", img_mask);
 
-    throttle = 0;
+    if(detectstoppoint()){
+      throttle_ = 0;
+      parking_stop_ = true;
+    }
 
 
 

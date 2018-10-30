@@ -104,3 +104,21 @@ cv::Mat Parking::mask(cv::Mat frame, int method) {
 	  return frame(Rect(0, frame.rows / 2, frame.cols , frame.rows / 2));
   }
 }
+
+bool Parking::detectstoppoint()
+{
+  if (stop_detect()) {
+    cout << "stop point detected!" << endl;
+    VisualizeCircle();
+    return true;
+  }
+  else{
+    return false;
+  }
+}
+
+bool Parking::stop_detect()
+{
+
+  
+}

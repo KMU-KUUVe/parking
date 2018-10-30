@@ -23,6 +23,8 @@ private:
 	double right_m;  // y = m*x + b
 	cv::Point left_b;  //
 	double left_m;  //
+	//bool parking_stop_ = false;
+}
 
 public:
 	cv::Mat deNoise(cv::Mat inputImage);  // Apply Gaussian blurring to the input Image

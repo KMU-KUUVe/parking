@@ -71,8 +71,8 @@ protected:
      * @brief lane detecting wrapper
      *
      */
-    int parkingdetect();
-   	int parkingstart();
+    void parkingdetect()
+   	int parkingstart()
 
 
 protected:
