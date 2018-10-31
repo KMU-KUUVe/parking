@@ -9,6 +9,7 @@ int main(int argc, char** argv)
 
 #if 0	// using camera
 	ParkingNode parking_node;
+	//do vehicle control first and then do parking.
 	parking_node.parkingdetect();
 
 	ros::spin();
