@@ -1,4 +1,4 @@
-# 2018 lane detector using opencv only
+# 2018 auto parking using opencv only
 
 ## branches
 * master: KASA competition lane detector (continuous lane)
