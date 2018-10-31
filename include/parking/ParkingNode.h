@@ -45,7 +45,8 @@ public:
 	 *
 	 */
     void imageCallback(const sensor_msgs::ImageConstPtr& image);
-
+    void parkingdetect();
+    int parkingstart();
 
 protected:
     /**
@@ -71,8 +72,6 @@ protected:
      * @brief lane detecting wrapper
      *
      */
-    void parkingdetect()
-   	int parkingstart()
 
 
 protected:
@@ -84,6 +83,7 @@ protected:
 	int steer_control_value_= 0;
 
     double angle_factor_ = 1.0;
+    bool parking_stop = false;
 
 
 	Parking parking;  // Create the class object

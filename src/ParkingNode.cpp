@@ -18,6 +18,7 @@ int steer_max_angle = 0;
 int detect_line_count = 0;
 int stop_distance = 0;
 int stop_time = 0;
+bool parking_stop_ = false;
 
 getRosParamForUpdate();
 
@@ -85,12 +86,10 @@ int ParkingNode::parkingstart()
     img_mask = parking.mask(img_mask2,Mask_method);
     imshow("img_mask", img_mask);
 
-    if(detectstoppoint()){
+    if(!parking_stop && Parking::detectstoppoint(img_mask, frame)){
       throttle_ = 0;
-      parking_stop_ = true;
+      parking_stop = true;
     }
-
-
 
 		int64 t2 = getTickCount();
 		double ms = (t2 - t1) * 1000 / getTickFrequency();
@@ -170,7 +169,7 @@ bool ParkingNode::run_test()
 
 }
 
-void Parking::parkingdetect()
+void ParkingNode::parkingdetect()
 {
     getRosParamForUpdate();
     throttle_ = 7;
@@ -180,7 +179,7 @@ void Parking::parkingdetect()
     ros::Duration(3).sleep();
     throttle_ = 7;
     steer_control_value_ = 5;
-    ackermann_msgs::AckermannDriveStamped control_msg = makeControlMsg();
+     control_msg = makeControlMsg();
     control_pub_.publish(control_msg);
     ros::Duration(3).sleep();
 

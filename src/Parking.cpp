@@ -9,12 +9,10 @@ using namespace cv;
 //ȭ�� resize
 
 #define resize_n 2
-#define LINE_LENGTH 30
-
-// ���Ⱒ �Ǵ� ��ġ y
 #define steer_height 70
-
 #define PI 3.141592
+#define STOP_DISTANCE 40
+#define STOP_THRES 200
 
 //���� ���� ����
 Scalar lower_white = Scalar(200, 200, 200); //��� ���� (RGB)
@@ -22,10 +20,7 @@ Scalar upper_white = Scalar(255, 255, 255);
 Scalar lower_yellow = Scalar(10, 100, 100); //����� ���� (HSV)
 Scalar upper_yellow = Scalar(40, 255, 255);
 
-
-
-
-// ����þ� ��, �ŵ�� ���� ���
+//bulrring the image
 cv::Mat Parking::deNoise(cv::Mat inputImage) {
   cv::Mat output;
 
@@ -45,23 +40,18 @@ void Parking::filter_colors(Mat _img_bgr, Mat &img_filtered)
 	Mat white_mask, white_image;
 	Mat yellow_mask, yellow_image;
 
-
 	//Filter white pixels
 	inRange(img_bgr, lower_white, upper_white, white_mask);
 	bitwise_and(img_bgr, img_bgr, white_image, white_mask);
 
-
 	//Filter yellow pixels( Hue 30 )
 	cvtColor(img_bgr, img_hsv, COLOR_BGR2HSV);
-
 
 	inRange(img_hsv, lower_yellow, upper_yellow, yellow_mask);
 	bitwise_and(img_bgr, img_bgr, yellow_image, yellow_mask);
 
-
 	//Combine the two above images
 	addWeighted(white_image, 1.0, yellow_image, 1.0, 0.0, img_combine);
-
 
 	img_combine.copyTo(img_filtered);
 }
@@ -74,9 +64,8 @@ cv::Mat Parking::mask(cv::Mat frame, int method) {
   {
 	  cv::Mat mask = cv::Mat::zeros(frame.size(), frame.type());
 
-	  // �ð�������� ����Ʈ�� �����Ѵ�.
 	  // Point(x,y)
-	  // TODO : �Ʒ� 4���� ������ Ư�� ���� �ƴ� ������ ����
+	  // TODO :
 	  /*
 	  cv::Point pts[4] = {
 		  cv::Point(210/ resize_n, 720/ resize_n),
@@ -99,26 +88,48 @@ cv::Mat Parking::mask(cv::Mat frame, int method) {
 
 	  return output;
   }
-  else if (method == 1)  //  ȭ���� ���� �ڸ���.
+  else if (method == 1)
   {
 	  return frame(Rect(0, frame.rows / 2, frame.cols , frame.rows / 2));
   }
 }
 
-bool Parking::detectstoppoint()
+bool Parking::detectstoppoint(cv::Mat img_filtered_,cv::Mat _img_bgr)
 {
-  if (stop_detect()) {
-    cout << "stop point detected!" << endl;
-    VisualizeCircle();
-    return true;
+  Mat img_filtered;
+  img_filtered_.copyTo(img_filtered);
+  Mat img_bgr;
+  _img_bgr.copyTo(img_bgr);
+
+  if(!p_stop){
+    if (stop_detect(img_filtered)) {
+      cout << "stop point detected!" << endl;
+      p_stop = true;
+      VisualizeCircle(img_bgr, img_filtered);
+      return true;
+    }
+    else{
+      p_stop = false;
+    }
   }
-  else{
-    return false;
-  }
+  return false;
 }
 
-bool Parking::stop_detect()
+bool Parking::stop_detect(cv::Mat img_filtered)
 {
+  Mat chk_img;
+  img_filtered.copyTo(chk_img);
 
-  
+   return img_filtered.at<uchar>(chk_img.rows * STOP_DISTANCE, chk_img.cols * 3 / 8) >= STOP_THRES;
+
+}
+void Parking::VisualizeCircle(cv::Mat _img_bgr, cv::Mat _img_filtered)
+{
+  Mat img_filtered;
+  _img_filtered.copyTo(img_filtered);
+  Mat img_bgr;
+  _img_bgr.copyTo(img_bgr);
+
+  circle(img_bgr, Point(img_filtered.cols * 3 / 8, img_filtered.rows * STOP_DISTANCE) + Point(0, RESIZE_HEIGHT * (double)roi_top_location / 100), 5, Scalar(255 * (1 - p_stop), 0, 255 * p_stop), 5);
+  circle(img_filtered, Point(img_filtered.cols * 3 / 8, img_filtered.rows * STOP_DISTANCE) , 5, Scalar(255 * (1 - p_stop), 0, 255 * p_stop), 5);
 }

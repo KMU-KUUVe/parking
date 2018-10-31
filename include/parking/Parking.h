@@ -17,19 +17,17 @@ class Parking {
 private:
 	double img_size;
 	double img_center;
-	bool left_flag = false;  // Tells us if there's left boundary of lane detected
-	bool right_flag = false;  // Tells us if there's right boundary of lane detected
-	cv::Point right_b;  // Members of both line equations of the lane boundaries:
-	double right_m;  // y = m*x + b
-	cv::Point left_b;  //
-	double left_m;  //
+	bool p_stop = false;
 	//bool parking_stop_ = false;
-}
+
 
 public:
 	cv::Mat deNoise(cv::Mat inputImage);  // Apply Gaussian blurring to the input Image
 	void filter_colors(cv::Mat _img_bgr, cv::Mat &img_filtered);
 	cv::Mat mask(cv::Mat frame, int method);
+	bool detectstoppoint(cv::Mat img_filtered_, cv::Mat _img_bgr);
+	bool stop_detect(cv::Mat img_filtered);
+	void VisualizeCircle(cv::Mat _img_bgr, cv::Mat _img_filtered);
 
 
 };
