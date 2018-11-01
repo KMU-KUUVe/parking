@@ -41,11 +41,12 @@ void ParkingNode::imageCallback(const sensor_msgs::ImageConstPtr& image)
 	} catch(const std::runtime_error& e) {
 		cerr << e.what() << endl;
 	}
-	getRosParamForUpdate();
+	//getRosParamForUpdate();
 
 	cout << "start parking" << endl;
-	throttle_ = parkingstart();
+	parkingstart();
 	cout << "end parking" << endl;
+	cout << "throttle : " << throttle_ << "steer : " << steer_control_value_ << endl;
 	ackermann_msgs::AckermannDriveStamped control_msg = makeControlMsg();
 
 	control_pub_.publish(control_msg);
@@ -68,7 +69,7 @@ ackermann_msgs::AckermannDriveStamped ParkingNode::makeControlMsg()
 }
 
 
-int ParkingNode::parkingstart()
+bool ParkingNode::parkingstart()
 {
 	int throttle;
 	int ncols = frame.cols;
@@ -80,19 +81,21 @@ int ParkingNode::parkingstart()
 	resize(frame, frame, Size(ncols / resize_n, nrows / resize_n));
 	img_denoise = parking.deNoise(frame);
 	parking.filter_colors(img_denoise, img_mask2);
-	bitwise_not(img_mask2,img_mask2);
+	//indoor test
+	bitwise_not(img_mask2,img_mask2); // test for black white invert
 	img_mask = parking.mask(img_mask2);
 	imshow("original", frame);
 	imshow("color_filter", img_mask2);
 	imshow("img_filter", img_mask);
 
-	cout << "parking start preprocessing image" << endl;
-	if(!parking_stop && parking.detectstoppoint(img_mask, frame)){
 
+	if(!parking_stop && parking.detectstoppoint(img_mask, frame, 3, 1)){
 		throttle_ = 0;
 		parking_stop = true;
+		cout << "parking stop" << endl;
+		return true;
 	}
-	parking.VisualizeCircle(frame, img_mask);
+	parking.VisualizeCircle(frame, img_mask, 1);
 
 	int64 t2 = getTickCount();
 	double ms = (t2 - t1) * 1000 / getTickFrequency();
@@ -102,7 +105,7 @@ int ParkingNode::parkingstart()
 	waitKey(3);
 	ROS_INFO("it took : %6.2f [ms].  average_time : %6.2f [ms].  frame per second (fps) : %6.2f [frame/s].   steer angle : %5.2f [deg]\n", ms, avg, 1000 / avg , angle);
 
-	return throttle;
+	return false;
 }
 
 
@@ -174,7 +177,7 @@ bool ParkingNode::run_test()
 
 void ParkingNode::parkingdetect()
 {
-	getRosParamForUpdate();
+	//getRosParamForUpdate();
 	throttle_ = 7;
 	steer_control_value_ = -5;
 	ackermann_msgs::AckermannDriveStamped control_msg = makeControlMsg();
@@ -187,5 +190,10 @@ void ParkingNode::parkingdetect()
 	control_pub_.publish(control_msg);
 	cout << "throttle : " << throttle_ << "steer : " << steer_control_value_ << endl;
 	ros::Duration(3).sleep();
-
+	throttle_ = 7;
+	steer_control_value_ = 0;
+	control_msg = makeControlMsg();
+	control_pub_.publish(control_msg);
+	cout << "throttle : " << throttle_ << "steer : " << steer_control_value_ << endl;
+	getRosParamForUpdate();
 }

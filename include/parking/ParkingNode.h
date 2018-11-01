@@ -36,7 +36,7 @@ public:
 	 */
     void imageCallback(const sensor_msgs::ImageConstPtr& image);
     void parkingdetect();
-    int parkingstart();
+    bool parkingstart();
 
 protected:
     /**
@@ -84,7 +84,7 @@ protected:
 	int j = 0;
 	double angle = 0;
   bool parking_stop = false;
-  int throttle_ = 0;
+  int throttle_ = 5;
   int steer_control_value_= 0;
   double angle_factor_ = 1.0;
 	cv::String test_video_path = "";
