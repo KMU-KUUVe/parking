@@ -142,8 +142,6 @@ bool Parking::stop_detect(cv::Mat img_filtered)
   img_filtered.copyTo(chk_img);
   //chk = img_filtered.at<uchar>(chk_img.rows * (int)STOP_DISTANCE/100, chk_img.cols * 3 / 8);
   //cout << chk << endl;
-  bool test = chk_img.at<uchar>(chk_img.rows * (int)ROW_LOCATE/100 , chk_img.cols * (int)COL_LOCATE / 100) >= STOP_THRES;
-  cout << "thres_value" << test << endl;
   return chk_img.at<uchar>(chk_img.rows * (int)ROW_LOCATE/100 , chk_img.cols * (int)COL_LOCATE / 100) >= STOP_THRES;
 }
 void Parking::VisualizeCircle(cv::Mat _img_bgr, cv::Mat _img_filtered)
