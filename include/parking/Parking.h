@@ -18,6 +18,7 @@ private:
 	double img_size;
 	double img_center;
 	bool p_stop = false;
+	int stop_count = 0;
 	//bool parking_stop_ = false;
 
 
@@ -25,7 +26,7 @@ public:
 	cv::Mat deNoise(cv::Mat inputImage);  // Apply Gaussian blurring to the input Image
 	void filter_colors(cv::Mat _img_bgr, cv::Mat &img_filtered);
 	cv::Mat mask(cv::Mat frame, int method);
-	bool detectstoppoint(cv::Mat img_filtered_, cv::Mat _img_bgr);
+	bool detectstoppoint(cv::Mat img_filtered_, cv::Mat _img_bgr, bool old_value);
 	bool stop_detect(cv::Mat img_filtered);
 	void VisualizeCircle(cv::Mat _img_bgr, cv::Mat _img_filtered);
 

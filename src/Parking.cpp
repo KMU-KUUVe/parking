@@ -13,6 +13,8 @@ using namespace cv;
 #define PI 3.141592
 #define STOP_DISTANCE 40
 #define STOP_THRES 200
+#define ROW_LOCATE 50
+#define COL_LOCATE 80
 
 //���� ���� ����
 Scalar lower_white = Scalar(200, 200, 200); //��� ���� (RGB)
@@ -94,34 +96,51 @@ cv::Mat Parking::mask(cv::Mat frame, int method) {
   }
 }
 
-bool Parking::detectstoppoint(cv::Mat img_filtered_,cv::Mat _img_bgr)
+bool Parking::detectstoppoint(cv::Mat img_filtered_,cv::Mat _img_bgr, bool old_value)
 {
+  bool old = old_value;
   Mat img_filtered;
   img_filtered_.copyTo(img_filtered);
   Mat img_bgr;
   _img_bgr.copyTo(img_bgr);
+  //imshow("fiter",img_filtered);
+  cout << "detect_stop_point" << endl;
 
   if(!p_stop){
-    if (stop_detect(img_filtered)) {
-      cout << "stop point detected!" << endl;
+    cout << "start detecting" << endl;
+
+    //Compare the old and new(present) stop_detect value.
+    //If the values are diffrent, it means that the detect point are on the border.
+    //At that time count up the stop count value.
+    if (old != stop_detect(img_filtered)){
+      stop_count++;
+      cout << "stop_count : " << stop_count << endl;
+    }
+
+    //if stop count is 3, that means the detect point are on the end parking line.
+    if(stop_count >= 3){
       p_stop = true;
-      VisualizeCircle(img_bgr, img_filtered);
+      cout << "stop" << endl;
+      //VisualizeCircle(img_bgr, img_filtered);
       return true;
     }
     else{
       p_stop = false;
+      return false;
     }
+    //VisualizeCircle(img_bgr, img_filtered);
   }
   return false;
 }
 
 bool Parking::stop_detect(cv::Mat img_filtered)
 {
+  //uchar chk;
   Mat chk_img;
   img_filtered.copyTo(chk_img);
-
-   return img_filtered.at<uchar>(chk_img.rows * STOP_DISTANCE, chk_img.cols * 3 / 8) >= STOP_THRES;
-
+  //chk = img_filtered.at<uchar>(chk_img.rows * (int)STOP_DISTANCE/100, chk_img.cols * 3 / 8);
+  //cout << chk << endl;
+  return chk_img.at<uchar>(chk_img.rows * (int)ROW_LOCATE/100 , chk_img.cols * (int)COL_LOCATE / 100) >= STOP_THRES;
 }
 void Parking::VisualizeCircle(cv::Mat _img_bgr, cv::Mat _img_filtered)
 {
@@ -129,7 +148,10 @@ void Parking::VisualizeCircle(cv::Mat _img_bgr, cv::Mat _img_filtered)
   _img_filtered.copyTo(img_filtered);
   Mat img_bgr;
   _img_bgr.copyTo(img_bgr);
+  cout << "p_stop : " << p_stop << endl;
+  circle(img_bgr, Point(img_filtered.rows * (int)ROW_LOCATE/100 , img_filtered.cols * (int)COL_LOCATE / 100) , 10, Scalar(255, 0, 255 * p_stop), -1);
+  cout << "visualize" << endl;
+  //imshow("parking",img_bgr);
+  //waitKey(3);
 
-  circle(img_bgr, Point(img_filtered.cols * 3 / 8, img_filtered.rows * STOP_DISTANCE) + Point(0, RESIZE_HEIGHT * (double)roi_top_location / 100), 5, Scalar(255 * (1 - p_stop), 0, 255 * p_stop), 5);
-  circle(img_filtered, Point(img_filtered.cols * 3 / 8, img_filtered.rows * STOP_DISTANCE) , 5, Scalar(255 * (1 - p_stop), 0, 255 * p_stop), 5);
 }
