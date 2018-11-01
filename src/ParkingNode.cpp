@@ -44,7 +44,6 @@ void ParkingNode::imageCallback(const sensor_msgs::ImageConstPtr& image)
 	getRosParamForUpdate();
 
 	cout << "start parking" << endl;
-	//steer_control_value_ = laneDetecting();
 	throttle_ = parkingstart();
 	cout << "end parking" << endl;
 	ackermann_msgs::AckermannDriveStamped control_msg = makeControlMsg();
@@ -63,7 +62,6 @@ void ParkingNode::getRosParamForUpdate()
 ackermann_msgs::AckermannDriveStamped ParkingNode::makeControlMsg()
 {
 	ackermann_msgs::AckermannDriveStamped control_msg;
-	//control_msg.drive.steering_angle = steer_control_value;
 	control_msg.drive.steering_angle = steer_control_value_;
 	control_msg.drive.speed = throttle_;
 	return control_msg;
@@ -72,7 +70,6 @@ ackermann_msgs::AckermannDriveStamped ParkingNode::makeControlMsg()
 
 int ParkingNode::parkingstart()
 {
-	//do lane_detecting until stop
 	int throttle;
 	int ncols = frame.cols;
 	int nrows = frame.rows;
@@ -83,15 +80,15 @@ int ParkingNode::parkingstart()
 	resize(frame, frame, Size(ncols / resize_n, nrows / resize_n));
 	img_denoise = parking.deNoise(frame);
 	parking.filter_colors(img_denoise, img_mask2);
-	img_mask = parking.mask(img_mask2,Mask_method);
+	bitwise_not(img_mask2,img_mask2);
+	img_mask = parking.mask(img_mask2);
 	imshow("original", frame);
 	imshow("color_filter", img_mask2);
 	imshow("img_filter", img_mask);
 
 	cout << "parking start preprocessing image" << endl;
-	//old_value = parking.stop_detect(img_mask);
 	if(!parking_stop && parking.detectstoppoint(img_mask, frame)){
-		//cout << "if loop" << endl;
+
 		throttle_ = 0;
 		parking_stop = true;
 	}
@@ -159,7 +156,7 @@ bool ParkingNode::run_test()
 
 
 		parking.filter_colors(img_denoise, img_mask2);
-		img_mask = parking.mask(img_mask2,Mask_method);
+		img_mask = parking.mask(img_mask2);
 		imshow("img_mask", img_mask);
 
 

@@ -17,16 +17,6 @@
 
 #define resize_n 2
 
-// ���Ⱒ �Ǵ� ��ġ y
-#define steer_height 30
-
-// ����ũ ���
-/* method
-0 : ���� ���ϴ� ����ũ ��� �����
-1 : ȭ���� �� ���ڸ���.
-*/
-#define Mask_method 1
-
 class ParkingNode
 {
 public:
@@ -94,7 +84,6 @@ protected:
 	int j = 0;
 	double angle = 0;
   bool parking_stop = false;
-  //bool old_value = false;
   int throttle_ = 0;
   int steer_control_value_= 0;
   double angle_factor_ = 1.0;

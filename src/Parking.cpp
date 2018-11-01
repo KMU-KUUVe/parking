@@ -6,18 +6,9 @@
 using namespace std;
 using namespace cv;
 
-//ȭ�� resize
-
-#define resize_n 2
-#define steer_height 70
-#define PI 3.141592
-#define STOP_DISTANCE 40
-#define STOP_THRES 200
-#define ROW_LOCATE 50
-#define COL_LOCATE 80
-
+#define WHITE_THRESH 150
 //���� ���� ����
-Scalar lower_white = Scalar(200, 200, 200); //��� ���� (RGB)
+Scalar lower_white = Scalar(WHITE_THRESH, WHITE_THRESH, WHITE_THRESH); //��� ���� (RGB)
 Scalar upper_white = Scalar(255, 255, 255);
 Scalar lower_yellow = Scalar(10, 100, 100); //����� ���� (HSV)
 Scalar upper_yellow = Scalar(40, 255, 255);
@@ -38,7 +29,13 @@ void Parking::filter_colors(Mat _img_bgr, Mat &img_filtered)
 	// Filter the image to include only yellow and white pixels
 	Mat img_bgr;
 	_img_bgr.copyTo(img_bgr);
-	Mat img_hsv, img_combine;
+  Mat img_gary;
+
+  cvtColor(img_bgr, img_gary, CV_BGR2GRAY);
+  threshold( img_gary, img_filtered, THRESH_BINARY, 255, 0);
+
+/* //  code from lane detector.
+  Mat img_hsv, img_combine;
 	Mat white_mask, white_image;
 	Mat yellow_mask, yellow_image;
 
@@ -56,54 +53,23 @@ void Parking::filter_colors(Mat _img_bgr, Mat &img_filtered)
 	addWeighted(white_image, 1.0, yellow_image, 1.0, 0.0, img_combine);
 
 	img_combine.copyTo(img_filtered);
+*/
+
+
 }
 
-cv::Mat Parking::mask(cv::Mat frame, int method) {
-  cv::Mat output;
-
-  // ���� ���ϴ� ����ũ�� �����Ѵ�.
-  if (method == 0)
-  {
-	  cv::Mat mask = cv::Mat::zeros(frame.size(), frame.type());
-
-	  // Point(x,y)
-	  // TODO :
-	  /*
-	  cv::Point pts[4] = {
-		  cv::Point(210/ resize_n, 720/ resize_n),
-		  cv::Point(550/ resize_n, 450/ resize_n),
-		  cv::Point(716/ resize_n, 450/ resize_n),
-		  cv::Point(1280/ resize_n, 720/ resize_n)
-	  };
-	 */
-
-	  cv::Point pts[4] = {
-		  cv::Point(0, frame.rows),
-		  cv::Point(0, frame.rows/2),
-		  cv::Point(frame.cols, frame.rows / 2),
-		  cv::Point(frame.cols, frame.rows)
-	  };
-	  // Create a binary polygon mask
-	  cv::fillConvexPoly(mask, pts, 4, cv::Scalar(255, 0, 0));
-	  // Multiply the edges image and the mask to get the output
-	  cv::bitwise_and(frame, mask, output);
-
-	  return output;
-  }
-  else if (method == 1)
-  {
-	  return frame(Rect(0, frame.rows / 2, frame.cols , frame.rows / 2));
-  }
+cv::Mat Parking::mask(cv::Mat frame) {
+    frame(Rect(0, 0, frame.cols , frame.rows/2))=0;
+    return frame;
 }
 
 bool Parking::detectstoppoint(cv::Mat img_filtered_,cv::Mat _img_bgr)
 {
-  //bool old = old_value;
   Mat img_filtered;
   img_filtered_.copyTo(img_filtered);
   Mat img_bgr;
   _img_bgr.copyTo(img_bgr);
-  //imshow("fiter",img_filtered);
+
   cout << "detect_stop_point" << endl;
 
   if(!p_stop){
@@ -123,37 +89,39 @@ bool Parking::detectstoppoint(cv::Mat img_filtered_,cv::Mat _img_bgr)
     if(stop_count >= 3){
       p_stop = true;
       cout << "stop" << endl;
-      //VisualizeCircle(img_bgr, img_filtered);
       return true;
     }
     else{
       p_stop = false;
       return false;
     }
-    //VisualizeCircle(img_bgr, img_filtered);
   }
   return false;
 }
 
 bool Parking::stop_detect(cv::Mat img_filtered)
 {
-  //uchar chk;
   Mat chk_img;
   img_filtered.copyTo(chk_img);
-  //chk = img_filtered.at<uchar>(chk_img.rows * (int)STOP_DISTANCE/100, chk_img.cols * 3 / 8);
-  //cout << chk << endl;
-  return chk_img.at<uchar>(chk_img.rows * (int)ROW_LOCATE/100 , chk_img.cols * (int)COL_LOCATE / 100) >= STOP_THRES;
+  for(int i=0; i < PIXCEL_N; i++){
+    if(chk_img.at<uchar>(chk_img.rows * (int)ROW_LOCATE/100  , chk_img.cols * (int)COL_LOCATE / 100 - PIXCEL_N/2 + i) < STOP_THRES)
+      return false;
+  }
+  return true;
 }
+
 void Parking::VisualizeCircle(cv::Mat _img_bgr, cv::Mat _img_filtered)
 {
   Mat img_filtered;
   _img_filtered.copyTo(img_filtered);
   Mat img_bgr;
   _img_bgr.copyTo(img_bgr);
+
   cout << "p_stop : " << p_stop << endl;
-  circle(img_bgr, Point(img_filtered.rows * (int)ROW_LOCATE/100 , img_filtered.cols * (int)COL_LOCATE / 100) , 10, Scalar(255, 0, 255 * p_stop), -1);
+  circle(img_bgr, Point(img_bgr.cols * (int)COL_LOCATE / 100, img_bgr.rows * (int)ROW_LOCATE/100), 5, Scalar(255, 0, 255 * p_stop), -1);
+  circle(img_filtered, Point(img_filtered.cols * (int)COL_LOCATE / 100, img_filtered.rows * (int)ROW_LOCATE/100), 5, Scalar(255, 0, 255 * p_stop), -1);
   cout << "visualize" << endl;
-  //imshow("parking",img_bgr);
-  //waitKey(3);
+  imshow("parking_raw",img_bgr);
+  imshow("parking_filter",img_filtered);
 
 }
