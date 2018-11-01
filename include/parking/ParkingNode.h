@@ -94,7 +94,7 @@ protected:
 	int j = 0;
 	double angle = 0;
   bool parking_stop = false;
-  bool old_value = false;
+  //bool old_value = false;
   int throttle_ = 0;
   int steer_control_value_= 0;
   double angle_factor_ = 1.0;

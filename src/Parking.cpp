@@ -96,9 +96,9 @@ cv::Mat Parking::mask(cv::Mat frame, int method) {
   }
 }
 
-bool Parking::detectstoppoint(cv::Mat img_filtered_,cv::Mat _img_bgr, bool old_value)
+bool Parking::detectstoppoint(cv::Mat img_filtered_,cv::Mat _img_bgr)
 {
-  bool old = old_value;
+  //bool old = old_value;
   Mat img_filtered;
   img_filtered_.copyTo(img_filtered);
   Mat img_bgr;
@@ -112,10 +112,12 @@ bool Parking::detectstoppoint(cv::Mat img_filtered_,cv::Mat _img_bgr, bool old_v
     //Compare the old and new(present) stop_detect value.
     //If the values are diffrent, it means that the detect point are on the border.
     //At that time count up the stop count value.
-    if (old != stop_detect(img_filtered)){
+    bool present_value = stop_detect(img_filtered);
+    if (old_value != present_value){
       stop_count++;
-      cout << "stop_count : " << stop_count << endl;
+      old_value = present_value;
     }
+    cout << "stop_count : " << stop_count << endl;
 
     //if stop count is 3, that means the detect point are on the end parking line.
     if(stop_count >= 3){
@@ -140,6 +142,8 @@ bool Parking::stop_detect(cv::Mat img_filtered)
   img_filtered.copyTo(chk_img);
   //chk = img_filtered.at<uchar>(chk_img.rows * (int)STOP_DISTANCE/100, chk_img.cols * 3 / 8);
   //cout << chk << endl;
+  bool test = chk_img.at<uchar>(chk_img.rows * (int)ROW_LOCATE/100 , chk_img.cols * (int)COL_LOCATE / 100) >= STOP_THRES;
+  cout << "thres_value" << test << endl;
   return chk_img.at<uchar>(chk_img.rows * (int)ROW_LOCATE/100 , chk_img.cols * (int)COL_LOCATE / 100) >= STOP_THRES;
 }
 void Parking::VisualizeCircle(cv::Mat _img_bgr, cv::Mat _img_filtered)

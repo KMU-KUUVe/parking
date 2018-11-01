@@ -89,8 +89,8 @@ int ParkingNode::parkingstart()
 	imshow("img_filter", img_mask);
 
 	cout << "parking start preprocessing image" << endl;
-	old_value = parking.stop_detect(img_mask);
-	if(!parking_stop && parking.detectstoppoint(img_mask, frame, old_value)){
+	//old_value = parking.stop_detect(img_mask);
+	if(!parking_stop && parking.detectstoppoint(img_mask, frame)){
 		//cout << "if loop" << endl;
 		throttle_ = 0;
 		parking_stop = true;
