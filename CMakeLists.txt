@@ -13,7 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
 	cv_bridge
 	OpenCV REQUIRED
 	roscpp
-    	std_msgs 
+    	std_msgs
 	sensor_msgs
 	image_transport
 )
@@ -27,6 +27,10 @@ include_directories(
 include_directories(
 	${catkin_INCLUDE_DIRS} ./include
 	)
+
+include_directories(
+	${lane_detector_SOURCE_DIR}/include
+)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -147,7 +151,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(parking src/main.cpp src/Parking.cpp src/ParkingNode.cpp)
+add_executable(parking src/main.cpp src/Parking.cpp src/ParkingNode.cpp ${lane_detector_SOURCE_DIR}/src/LaneDetector.cpp)
 add_dependencies(parking ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(parking
   ${catkin_LIBRARIES}

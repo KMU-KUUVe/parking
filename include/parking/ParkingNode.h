@@ -5,6 +5,7 @@
 #include <vector>
 #include "opencv2/opencv.hpp"
 #include "parking/Parking.h"
+#include "lane_detector/LaneDetector.h"
 #include <std_msgs/String.h>
 #include <cv_bridge/cv_bridge.h>
 #include <image_transport/image_transport.h>
@@ -15,7 +16,7 @@
 #ifndef PARKINGNODE_H
 #define PARKINGNODE_H
 
-#define resize_n 2
+#define resize_n 1
 
 class ParkingNode
 {
@@ -35,6 +36,7 @@ public:
 	 *
 	 */
     void imageCallback(const sensor_msgs::ImageConstPtr& image);
+    int laneDetecting();
     void parkingdetect();
     bool parkingstart();
 
@@ -70,12 +72,20 @@ protected:
 	ros::Subscriber image_sub_;		// 가공되지 않은 raw image 메시지를 Subscribe하는 Subscriber
 
 
-
+  LaneDetector lanedetector;
 	Parking parking;  // Create the class object
 	cv::Mat frame;
-	cv::Mat img_denoise;
-	cv::Mat img_mask;
-	cv::Mat img_mask2;
+  cv::Mat img_denoise;
+  cv::Mat img_edges;
+  cv::Mat img_mask;
+  cv::Mat img_lines;
+  cv::Mat img_mask2;
+  cv::Mat img_mask3;
+  int Mask_method = 1;
+  std::vector<cv::Vec4i> lines;
+  std::vector<std::vector<cv::Vec4i> > left_right_lines;
+  std::vector<cv::Point> lane;
+  std::string turn;
 	int flag_plot = -1;
 	int i = 0;
 	double avg = 0;
