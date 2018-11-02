@@ -25,7 +25,7 @@ private:
 	unsigned int ROW_LOCATE = 80; // detect point of row axis. the location is the percentage of top to img raw's rows.
 	unsigned int COL_LOCATE = 50; // detect point of column axis. the location is the percentage of top to img raw's clos.
 	unsigned int THRESH_BINARY = 150; // binary threshold
-	unsigned int WHITE_THRESH = 150; // white color threshold
+	unsigned int WHITE_THRESH = 170; // white color threshold
 	unsigned int YELLOW_THRESH; // yeoow color threshold
 
 	cv::Scalar lower_white; //��� ���� (RGB)
