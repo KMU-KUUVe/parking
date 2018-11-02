@@ -82,7 +82,6 @@ int ParkingNode::laneDetecting()
 	int64 t1 = getTickCount();
 	frame_count++;
 
-	// ȭ�� ũ�� ���� -> �ػ� �����Ͽ� ���ӵ� ���
 	resize(frame, lane_frame, Size(ncols / resize_n, nrows / resize_n));
 	img_denoise = lanedetector.deNoise(lane_frame);
 	lanedetector.filter_colors(img_denoise, img_mask2);
@@ -92,7 +91,6 @@ int ParkingNode::laneDetecting()
 */
 	//Mat mask = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3), cv::Point(1, 1));
 	//dilate(img_mask2, img_mask2, mask, Point(-1, -1), 3);
-	// lanedetector.DrawLabelingImage(img_mask2);
 	imshow("lane_color_filter", img_mask2);
 	img_edges = lanedetector.edgeDetector(img_mask2);
 	// Mask the image so that we only get the ROI
@@ -205,14 +203,21 @@ bool ParkingNode::run_test()
 		int64 t1 = getTickCount();
 		frame_count++;
 
-		resize(frame, frame, Size(ncols / resize_n, nrows / resize_n));
+	
+		if(!parkingstart()){
+				cout << "do lane detecting" << endl;
+				steer_control_value_ = laneDetecting();
+		}
+		else{
+			cout << "parking" << endl;
+			steer_control_value_ = 0;
+			destroyWindow("lane_color_filter");
+			destroyWindow("lane_edges");
+			destroyWindow("lane");
+		}
 
-		img_denoise = parking.deNoise(frame);
+		cout << "throttle : " << throttle_ << "steer : " << steer_control_value_ << endl;
 
-
-		parking.filter_colors(img_denoise, img_mask2);
-		img_mask = parking.mask(img_mask2);
-		imshow("img_mask", img_mask);
 
 
 		int64 t2 = getTickCount();

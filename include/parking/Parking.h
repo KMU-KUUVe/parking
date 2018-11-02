@@ -28,14 +28,8 @@ private:
 	unsigned int WHITE_THRESH = 170; // white color threshold
 	unsigned int YELLOW_THRESH; // yeoow color threshold
 
-	cv::Scalar lower_white; //��� ���� (RGB)
-	cv::Scalar upper_white;
-	cv::Scalar lower_yellow; //����� ���� (HSV)
-	cv::Scalar upper_yellow;
-
 public:
 	cv::Mat deNoise(cv::Mat inputImage);  // Apply Gaussian blurring to the input Image
-	void filter_colors(cv::Mat _img_bgr, cv::Mat &img_filtered);
 	cv::Mat mask(cv::Mat frame);
 	bool detectstoppoint(cv::Mat img_filtered_,cv::Mat _img_bgr, int stop_change_count, int detect_layer);
 	bool stop_detect(cv::Mat img_filtered, int detect_layer);

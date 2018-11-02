@@ -17,45 +17,6 @@ cv::Mat Parking::deNoise(cv::Mat inputImage) {
   return output;
 }
 
-//filter the image by yellow and white color
-void Parking::filter_colors(Mat _img_bgr, Mat &img_filtered)
-{
-  lower_white = Scalar(WHITE_THRESH, WHITE_THRESH, WHITE_THRESH);
-  upper_white = Scalar(255, 255, 255);
-  lower_yellow = Scalar(10, 100, 100);
-  upper_yellow = Scalar(40, 255, 255);
-	// Filter the image to include only yellow and white pixels
-	Mat img_bgr;
-	_img_bgr.copyTo(img_bgr);
-  Mat img_gary;
-
-  cvtColor(img_bgr, img_gary, CV_BGR2GRAY);
-  threshold( img_gary, img_filtered, THRESH_BINARY, 255, 0);
-
-/* //  code from lane detector.
-  Mat img_hsv, img_combine;
-	Mat white_mask, white_image;
-	Mat yellow_mask, yellow_image;
-
-	//Filter white pixels
-	inRange(img_bgr, lower_white, upper_white, white_mask);
-	bitwise_and(img_bgr, img_bgr, white_image, white_mask);
-
-	//Filter yellow pixels( Hue 30 )
-	cvtColor(img_bgr, img_hsv, COLOR_BGR2HSV);
-
-	inRange(img_hsv, lower_yellow, upper_yellow, yellow_mask);
-	bitwise_and(img_bgr, img_bgr, yellow_image, yellow_mask);
-
-	//Combine the two above images
-	addWeighted(white_image, 1.0, yellow_image, 1.0, 0.0, img_combine);
-
-	img_combine.copyTo(img_filtered);
-*/
-
-
-}
-
 cv::Mat Parking::mask(cv::Mat frame) {
     frame(Rect(0, 0, frame.cols , frame.rows/2))=0;
     return frame;
