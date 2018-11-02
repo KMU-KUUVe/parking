@@ -75,6 +75,8 @@ protected:
   LaneDetector lanedetector;
 	Parking parking;  // Create the class object
 	cv::Mat frame;
+  cv::Mat lane_frame;
+  cv::Mat parking_frame;
   cv::Mat img_denoise;
   cv::Mat img_edges;
   cv::Mat img_mask;
@@ -94,7 +96,8 @@ protected:
 	int j = 0;
 	double angle = 0;
   bool parking_stop = false;
-  int throttle_ = 5;
+  int CONST_THROTTLE = 4;
+  int throttle_ = 4;
   int steer_control_value_= 0;
   double angle_factor_ = 1.0;
 	cv::String test_video_path = "";
