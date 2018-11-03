@@ -236,13 +236,13 @@ void ParkingNode::parkingdetect()
 {
 	//getRosParamForUpdate();
 	throttle_ = CONST_THROTTLE;
-	steer_control_value_ = -7;
+	steer_control_value_ = 7;
 	ackermann_msgs::AckermannDriveStamped control_msg = makeControlMsg();
 	control_pub_.publish(control_msg);
 	cout << "throttle : " << throttle_ << "steer : " << steer_control_value_ << endl;
 	ros::Duration(3).sleep();
 	throttle_ = CONST_THROTTLE;
-	steer_control_value_ = 7;
+	steer_control_value_ = -7;
 	control_msg = makeControlMsg();
 	control_pub_.publish(control_msg);
 	cout << "throttle : " << throttle_ << "steer : " << steer_control_value_ << endl;
