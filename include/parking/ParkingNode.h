@@ -37,7 +37,8 @@ public:
 	 */
     void imageCallback(const sensor_msgs::ImageConstPtr& image);
     int laneDetecting();
-    void parkingdetect();
+    void parkingdetect_A();
+    void parkingdetect_B();
     bool parkingstart();
 
 protected:

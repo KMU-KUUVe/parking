@@ -11,7 +11,16 @@ int main(int argc, char** argv)
 	ParkingNode parking_node;
 	//do vehicle control first and then do parking.
 	std::cout << "start node" << std::endl;
-	parking_node.parkingdetect();
+
+	/*
+	if(msg == 1){
+		parking_node.parkingdetect_A();
+	}else{
+		parking_node.parkingdetect_B();
+	}
+	*/
+
+	parking_node.parkingdetect_A();
 	std::cout << "control node end" << std::endl;
 	ros::spin();
 

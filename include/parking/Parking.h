@@ -17,6 +17,17 @@ class Parking {
 private:
 	double img_size;
 	double img_center;
+	//regression variables
+	double detect_n = 0.30; // detection point(line) of y axis for line regression(also apply to visualization).(the percentage of image column)
+	uchar steer_height = 35; //decide line_middle (line_middle.y = steer_height / 100.0 * inputImage.rows)
+	bool left_flag = false;  // Tells us if there's left boundary of lane detected
+	bool right_flag = false;  // Tells us if there's right boundary of lane detected
+	cv::Point right_b;  // Members of both line equations of the lane boundaries:
+	double right_m;  // y = m*x + b
+	cv::Point left_b;  //
+	double left_m;  //
+	double PI = 3.141592;
+
 	bool p_stop = false;
 	unsigned int stop_count = 0;
 	bool old_value = false;
@@ -24,9 +35,7 @@ private:
 	unsigned int STOP_THRES = 200; // critria of pixcel values
 	unsigned int ROW_LOCATE = 95; // detect point of row axis. the location is the percentage of top to img raw's rows.
 	unsigned int COL_LOCATE = 50; // detect point of column axis. the location is the percentage of top to img raw's clos.
-	unsigned int THRESH_BINARY = 150; // binary threshold
-	unsigned int WHITE_THRESH = 170; // white color threshold
-	unsigned int YELLOW_THRESH; // yeoow color threshold
+
 
 public:
 	cv::Mat deNoise(cv::Mat inputImage);  // Apply Gaussian blurring to the input Image
@@ -34,7 +43,7 @@ public:
 	bool detectstoppoint(cv::Mat img_filtered_,cv::Mat _img_bgr, int stop_change_count, int detect_layer);
 	bool stop_detect(cv::Mat img_filtered, int detect_layer);
 	void VisualizeCircle(cv::Mat _img_bgr, cv::Mat _img_filtered, int detect_layer);
-
+	std::vector<cv::Point> regression(std::vector<std::vector<cv::Vec4i> > left_right_lines, cv::Mat inputImage, double &angle);
 
 };
 
