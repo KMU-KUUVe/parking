@@ -19,5 +19,5 @@
 	</node>
 
     <!-- platform_control-->
-    <!--<node pkg="platform_control" type="write_serial" name="write_serial" />-->
+    <node pkg="platform_control" type="write_serial" name="write_serial" />
 </launch>
