@@ -79,16 +79,14 @@ protected:
   cv::Mat lane_frame;
   cv::Mat parking_frame;
   cv::Mat img_denoise;
-  cv::Mat img_edges;
   cv::Mat img_mask;
-  cv::Mat img_lines;
   cv::Mat img_mask2;
-  cv::Mat img_mask3;
   int Mask_method = 1;
   std::vector<cv::Vec4i> lines;
   std::vector<std::vector<cv::Vec4i> > left_right_lines;
   std::vector<cv::Point> lane;
   std::string turn;
+	uchar steer_height = 70;
 	int flag_plot = -1;
 	int i = 0;
 	double avg = 0;
@@ -96,6 +94,8 @@ protected:
 	int frame_count = 0;
 	int j = 0;
 	double angle = 0;
+	int left_x = 0;
+	int right_x = 0;
   bool parking_stop = false;
   int CONST_THROTTLE = 4;
   int throttle_ = 4;

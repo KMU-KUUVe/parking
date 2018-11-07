@@ -92,107 +92,76 @@ void Parking::VisualizeCircle(cv::Mat _img_bgr, cv::Mat _img_filtered, int detec
 	imshow("parking_raw",img_bgr);
 	imshow("parking_filter",img_filtered);
 }
-
-std::vector<cv::Point> Parking::regression(std::vector<std::vector<cv::Vec4i> > left_right_lines, cv::Mat inputImage, double &angle) {
-	std::vector<cv::Point> output(4);
-	cv::Point ini;
-	cv::Point fini;
-	cv::Point ini2;
-	cv::Point fini2;
-	cv::Vec4d right_line;
-	cv::Vec4d left_line;
-	Point line_middle;
-	std::vector<cv::Point> right_pts;
-	std::vector<cv::Point> left_pts;
-	int ini_y = inputImage.rows;
-	int fin_y = inputImage.rows * detect_n ;
-	double right_ini_x;
-	double right_fin_x;
-	double right_xx;
-	double left_ini_x;
-	double left_fin_x;
-	double left_xx;
-
-	line_middle.y = steer_height / 100.0 * inputImage.rows;
-
-	// If right lines are being detected, fit a line using all the init and final points of the lines
-
-	if (right_flag == true) {
-		for (auto i : left_right_lines[0]) {
-			ini = cv::Point(i[0], i[1]);
-			fini = cv::Point(i[2], i[3]);
-
-			right_pts.push_back(ini);
-			right_pts.push_back(fini);
-		}
-
-		if (right_pts.size() > 0) {
-			// The right line is formed here
-			cv::fitLine(right_pts, right_line, CV_DIST_L2, 0, 0.01, 0.01);
-			right_m = right_line[1] / right_line[0];
-			right_b = cv::Point(right_line[2], right_line[3]);
-		}
-		right_ini_x = ((ini_y - right_b.y) / right_m) + right_b.x;
-		right_fin_x = ((fin_y - right_b.y) / right_m) + right_b.x;
-		right_xx = (line_middle.y - right_b.y) / (right_m)+right_b.x;
+double Parking::steer_control(Mat denoise, int height_percent, int judging_line, int &left_x, int &right_x , Mat frame)
+{
 
 
-	}
-	else{
-		right_ini_x = inputImage.cols;
-		right_fin_x = inputImage.cols;
-		right_xx = inputImage.cols;
+ int left_x_num = 0;
+ int right_x_num = 0;
+
+ int left_sum_x = 0;
+ int right_sum_x = 0;
+
+ int line_height = denoise.rows * height_percent / 100.0;
+
+ for (int j = line_height ; j < line_height + judging_line; j++)
+ {
+	 for (int i = 2; i < denoise.cols / 3.0; i++)
+	 {
+
+		 //left lane.
+		 if (denoise.at<uchar>(j, i) == 255)
+		 {
+			 left_sum_x += i;
+			 left_x_num++;
+
+		 }
+
+		 //right lane
+		 if (denoise.at<uchar>(j, denoise.cols - i) == 255)
+		 {
+			 right_sum_x += denoise.cols - i;
+			 right_x_num++;
+		 }
+	 }
+ }
+
+ //imshow("frame", frame);
+ line(denoise, Point(2, line_height), Point(denoise.cols, line_height), Scalar(0, 255, 255), 5);
+ line(denoise, Point(denoise.cols - 2, line_height), Point(denoise.cols * 2 / 3.0, line_height), Scalar(255, 255, 255), 5);
+
+ if (!(left_x_num == 0))
+ {
+	 left_x = left_sum_x / left_x_num;
+ }
+ if (!(right_x_num == 0))
+ {
+	 right_x = right_sum_x / right_x_num;
+ }
 
 
-	}
-
-	// If left lines are being detected, fit a line using all the init and final points of the lines
-	if (left_flag == true) {
-		for (auto j : left_right_lines[1]) {
-			ini2 = cv::Point(j[0], j[1]);
-			fini2 = cv::Point(j[2], j[3]);
-
-			left_pts.push_back(ini2);
-			left_pts.push_back(fini2);
-		}
-
-		if (left_pts.size() > 0) {
-			// The left line is formed here
-			cv::fitLine(left_pts, left_line, CV_DIST_L2, 0, 0.01, 0.01);
-			left_m = left_line[1] / left_line[0];
-			left_b = cv::Point(left_line[2], left_line[3]);
-		}
-		left_ini_x = ((ini_y - left_b.y) / left_m) + left_b.x;
-		left_fin_x = ((fin_y - left_b.y) / left_m) + left_b.x;
-		left_xx = (line_middle.y - left_b.y) / (left_m)+left_b.x;
+ int middle = (left_x + right_x) / 2.0;
 
 
-	}
-	else{
-		left_ini_x = 0;
-		left_fin_x = 0;
-		left_xx = 0;
-	}
 
-	// One the slope and offset points have been obtained, apply the line equation to obtain the line points
-	line_middle.x = (right_xx + left_xx)/2.0;
+ double angle = atan2(middle-40 - denoise.cols / 2, denoise.rows - line_height) * 180 / PI;
+ if(angle > 23){
+	 angle = 23;
+ }
+ else if(angle < -23){
+	 angle = -23;
+ }
 
-	circle(inputImage, line_middle , 5, Scalar(255, 255, 0), 5);
 
-	angle = atan2((line_middle.x - 30) - inputImage.cols / 2.0, inputImage.rows - line_middle.y) * 180 / PI;
-	//angle = -atan2(line_middle.x - inputImage.cols / 2.0, inputImage.rows - line_middle.y) * 180 / PI;
 
-	if(angle >23){
-		angle = 23;
-	}else if(angle < -23){
-		angle = -23;
-	}
-	//
+ // plot
+ line(frame, Point(2, line_height), Point(frame.cols / 3.0, line_height), Scalar(0, 255, 255), 5);
+ line(frame, Point(frame.cols - 2, line_height), Point(frame.cols * 2 / 3.0, line_height), Scalar(255, 255, 255), 5);
+ //circle(frame, Point(frame.cols/2, frame.rows/2), 5, Scalar(255, 0, 0), 5);
+ circle(frame, Point(left_x, line_height), 5, Scalar(255, 0, 0), 5);
+ circle(frame, Point(right_x, line_height), 5, Scalar(255, 0, 0), 5);
 
-	output[0] = cv::Point(right_ini_x, ini_y);
-	output[1] = cv::Point(right_fin_x, fin_y);
-	output[2] = cv::Point(left_ini_x, ini_y);
-	output[3] = cv::Point(left_fin_x, fin_y);
-
-	return output;
+ line(frame, Point(middle, line_height), Point(denoise.cols / 2, denoise.rows), Scalar(255, 255, 255), 4);
+ imshow("frame", frame);
+ return angle;
 }

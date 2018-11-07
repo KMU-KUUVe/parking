@@ -83,37 +83,24 @@ int ParkingNode::laneDetecting()
 	frame_count++;
 
 	resize(frame, lane_frame, Size(ncols / resize_n, nrows / resize_n));
-	img_denoise = lanedetector.deNoise(lane_frame);
-	lanedetector.filter_colors(img_denoise, img_mask2);
-	/*
-	//indoor test
-	bitwise_not(img_mask2,img_mask2); // test for black white invert
-	 */
-	imshow("lane_color_filter", img_mask2);
-	img_edges = lanedetector.edgeDetector(img_mask2);
-	// Mask the image so that we only get the ROI
-	img_mask = lanedetector.mask(img_edges,Mask_method);
-	imshow("lane_edges", img_mask);
-	// Obtain Hough lines in the cropped image
-	lines = lanedetector.houghLines(img_mask);
-	// Separate lines into left and right lines
-	left_right_lines = lanedetector.lineSeparation(lines, img_mask);
-	line(frame, Point(10, 0), Point(10, 20), Scalar(0, 0, 255), 5);
-	// Apply regression to obtain only one line for each side of the lane
-	lane = parking.regression(left_right_lines, frame, angle);  // frame -> img_mask
-	turn = lanedetector.predictTurn(); // Predict the turn by determining the vanishing point of the the lines
-	flag_plot = lanedetector.plotLane(frame, lane, turn); // Plot lane detection
+	img_mask = lanedetector.mask(lane_frame);
+	//imshow("img_mask", img_mask);
+	lanedetector.filter_colors(img_mask, img_mask2);
+	//imshow("img_mask2", img_mask2);
+	img_denoise = lanedetector.deNoise(img_mask2);
+	//imshow("img_denoise", img_denoise);
 
+		double angle = parking.steer_control(img_denoise, steer_height, 5, left_x, right_x, img_mask);
 
-	int64 t2 = getTickCount();
-	double ms = (t2 - t1) * 1000 / getTickFrequency();
-	sum += ms;
-	avg = sum / (double)frame_count;
-	//cout << "it took :  " << ms << "ms." << "average_time : " << avg << " frame per second (fps) : " << 1000 / avg << endl;
-	waitKey(3);
-//	ROS_INFO("it took : %6.2f [ms].  average_time : %6.2f [ms].  frame per second (fps) : %6.2f [frame/s].   steer angle : %5.2f [deg]\n", ms, avg, 1000 / avg , angle);
+		int64 t2 = getTickCount();
+		double ms = (t2 - t1) * 1000 / getTickFrequency();
+		sum += ms;
+		avg = sum / (double)frame_count;
+		//cout << "it took :  " << ms << "ms." << "average_time : " << avg << " frame per second (fps) : " << 1000 / avg << endl;
+		waitKey(3);
+		ROS_INFO("it took : %6.2f [ms].  average_time : %6.2f [ms].  frame per second (fps) : %6.2f [frame/s].   steer angle : %5.2f [deg]\n", ms, avg, 1000 / avg , angle);
 
-	return angle * angle_factor_;
+		return angle * angle_factor_;
 }
 
 
@@ -127,16 +114,16 @@ bool ParkingNode::parkingstart()
 	frame_count++;
 
 	resize(frame, parking_frame, Size(ncols / resize_n, nrows / resize_n));
-	img_denoise = parking.deNoise(parking_frame);
-	lanedetector.filter_colors(img_denoise, img_mask2);
-	/*
-	//indoor test
-	bitwise_not(img_mask2,img_mask2); // test for black white invert
-	 */
-	img_mask = parking.mask(img_mask2);
+	resize(frame, lane_frame, Size(ncols / resize_n, nrows / resize_n));
+	img_mask = lanedetector.mask(lane_frame);
+	//imshow("img_mask", img_mask);
+	lanedetector.filter_colors(img_mask, img_mask2);
+	//imshow("img_mask2", img_mask2);
+	img_denoise = lanedetector.deNoise(img_mask2);
+	//imshow("img_denoise", img_denoise);
 
-	parking.VisualizeCircle(frame, img_mask, 1);
-	if(parking.detectstoppoint(img_mask, frame, 3, 1)){
+	parking.VisualizeCircle(frame, img_denoise, 1);
+	if(parking.detectstoppoint(img_denoise, frame, 3, 1)){
 		throttle_ = 0;
 		if(!parking_stop){
 			parking_stop = true;
