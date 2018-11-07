@@ -39,7 +39,7 @@ public:
     int laneDetecting();
     void parkingdetect_A();
     void parkingdetect_B();
-    bool parkingstart();
+    int parkingstart();
 
 protected:
     /**

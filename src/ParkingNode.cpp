@@ -39,16 +39,21 @@ void ParkingNode::imageCallback(const sensor_msgs::ImageConstPtr& image)
 		cerr << e.what() << endl;
 	}
 
-	if(!parkingstart()){
+	if(parkingstart() <= 1){
 		cout << "do lane detecting" << endl;
 		steer_control_value_ = laneDetecting();
+		parking_stop = false;
 	}
-	else{
+	else if(parkingstart() < 3){
 		cout << "parking" << endl;
 		steer_control_value_ = 0;
-		destroyWindow("lane_color_filter");
-		destroyWindow("lane_edges");
-		destroyWindow("lane");
+		parking_stop = false;
+	}
+	else{
+		cout << "stop" << endl;
+		steer_control_value_ = 0;
+		throttle_ = 0;
+		parking_stop = true;
 	}
 
 	cout << "throttle : " << throttle_ << "steer : " << steer_control_value_ << endl;
@@ -89,6 +94,8 @@ int ParkingNode::laneDetecting()
 	//imshow("img_mask2", img_mask2);
 	img_denoise = lanedetector.deNoise(img_mask2);
 	//imshow("img_denoise", img_denoise);
+	/*indoor test*/
+	bitwise_not(img_denoise,img_denoise);
 
 		double angle = parking.steer_control(img_denoise, steer_height, 5, left_x, right_x, img_mask);
 
@@ -104,7 +111,7 @@ int ParkingNode::laneDetecting()
 }
 
 
-bool ParkingNode::parkingstart()
+int ParkingNode::parkingstart()
 {
 	int throttle;
 	int ncols = frame.cols;
@@ -121,15 +128,22 @@ bool ParkingNode::parkingstart()
 	//imshow("img_mask2", img_mask2);
 	img_denoise = lanedetector.deNoise(img_mask2);
 	//imshow("img_denoise", img_denoise);
+	/*indoor test*/
+	bitwise_not(img_denoise,img_denoise);
 
 	parking.VisualizeCircle(frame, img_denoise, 1);
-	if(parking.detectstoppoint(img_denoise, frame, 3, 1)){
+
+	return parking.detectstoppoint(img_denoise, frame, 3, 1);
+
+	/*
+	if(parking.detectstoppoint(img_denoise, frame, 3, 1) >= 3){
 		throttle_ = 0;
 		if(!parking_stop){
 			parking_stop = true;
 		}
 		return true;
 	}
+	*/
 
 	int64 t2 = getTickCount();
 	double ms = (t2 - t1) * 1000 / getTickFrequency();

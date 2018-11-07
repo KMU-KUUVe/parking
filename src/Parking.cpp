@@ -22,7 +22,7 @@ cv::Mat Parking::mask(cv::Mat frame) {
 	return frame;
 }
 
-bool Parking::detectstoppoint(cv::Mat img_filtered_,cv::Mat _img_bgr, int stop_change_count, int detect_layer)
+int Parking::detectstoppoint(cv::Mat img_filtered_,cv::Mat _img_bgr, int stop_change_count, int detect_layer)
 {
 	Mat img_filtered;
 	img_filtered_.copyTo(img_filtered);
@@ -46,14 +46,14 @@ bool Parking::detectstoppoint(cv::Mat img_filtered_,cv::Mat _img_bgr, int stop_c
 		if(stop_count >= stop_change_count){
 			p_stop = true;
 			cout << "stop" << endl;
-			return true;
+			//return true;
 		}
 		else{
 			p_stop = false;
-			return false;
+			//return false;
 		}
 	}
-	return true;
+	return stop_count;
 }
 
 bool Parking::stop_detect(cv::Mat img_filtered, int detect_layer)
@@ -92,6 +92,7 @@ void Parking::VisualizeCircle(cv::Mat _img_bgr, cv::Mat _img_filtered, int detec
 	imshow("parking_raw",img_bgr);
 	imshow("parking_filter",img_filtered);
 }
+
 double Parking::steer_control(Mat denoise, int height_percent, int judging_line, int &left_x, int &right_x , Mat frame)
 {
 
