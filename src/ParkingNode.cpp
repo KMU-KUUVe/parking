@@ -97,7 +97,7 @@ int ParkingNode::laneDetecting()
 	/*indoor test*/
 	bitwise_not(img_denoise,img_denoise);
 
-		double angle = parking.steer_control(img_denoise, steer_height, 5, left_x, right_x, img_mask);
+		double angle = parking.steer_control(img_denoise, steer_height, 5, left_x, right_x, img_mask, 1);
 
 		int64 t2 = getTickCount();
 		double ms = (t2 - t1) * 1000 / getTickFrequency();

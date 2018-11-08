@@ -36,6 +36,7 @@ int Parking::detectstoppoint(cv::Mat img_filtered_,cv::Mat _img_bgr, int stop_ch
 		//If the values are diffrent, it means that the detect point are on the border.
 		//At that time count up the stop count value.
 		bool present_value = stop_detect(img_filtered, detect_layer);
+		cout << "present_value" << present_value << endl;
 		if (old_value != present_value){
 			stop_count++;
 			old_value = present_value;
@@ -66,7 +67,8 @@ bool Parking::stop_detect(cv::Mat img_filtered, int detect_layer)
 	for(int j = detect_layer-1; j >= 0; j--){
 		for(int i = 0; i < PIXCEL_N; i++){
 			//cout << chk_img.at<uchar>(chk_img.rows * (int)ROW_LOCATE/100 - j*10  , chk_img.cols * (int)COL_LOCATE / 100 - PIXCEL_N/2 + i) << endl;
-			if((chk_img.at<uchar>(chk_img.rows * (int)ROW_LOCATE/100 - j*10  , chk_img.cols * (int)(COL_LOCATE-20) / 100 - PIXCEL_N/2 + i) < STOP_THRES) && (chk_img.at<uchar>(chk_img.rows * (int)ROW_LOCATE/100 - j*10  , chk_img.cols * (int)(COL_LOCATE+20) / 100 - PIXCEL_N/2 + i) < STOP_THRES)){
+			//if((chk_img.at<uchar>(chk_img.rows * (int)ROW_LOCATE/100 - j*10  , chk_img.cols * (int)(COL_LOCATE-20) / 100 - PIXCEL_N/2 + i) < STOP_THRES) && (chk_img.at<uchar>(chk_img.rows * (int)ROW_LOCATE/100 - j*10  , chk_img.cols * (int)(COL_LOCATE+20) / 100 - PIXCEL_N/2 + i) < STOP_THRES))
+			if(chk_img.at<uchar>(chk_img.rows * (int)ROW_LOCATE/100 - j*10  , chk_img.cols * (int)COL_LOCATE / 100 - PIXCEL_N/2 + i) < STOP_THRES){
 				return false;
 			}
 		}
@@ -83,10 +85,10 @@ void Parking::VisualizeCircle(cv::Mat _img_bgr, cv::Mat _img_filtered, int detec
 
 	cout << "p_stop : " << p_stop << endl;
 	for(int j = detect_layer -1; j >= 0; j--){
-		circle(img_bgr, Point(img_bgr.cols * (int)(COL_LOCATE -20) / 100, img_bgr.rows * (int)ROW_LOCATE/100 - j*10), 5, Scalar(255, 0, 255 * p_stop), -1);
-		circle(img_filtered, Point(img_filtered.cols * (int)(COL_LOCATE -20) / 100, img_filtered.rows * (int)ROW_LOCATE/100 -j*10), 5, Scalar(255, 0, 255 * p_stop), -1);
-		circle(img_bgr, Point(img_bgr.cols * (int)(COL_LOCATE +20) / 100, img_bgr.rows * (int)ROW_LOCATE/100 - j*10), 5, Scalar(255, 0, 255 * p_stop), -1);
-		circle(img_filtered, Point(img_filtered.cols * (int)(COL_LOCATE +20) / 100, img_filtered.rows * (int)ROW_LOCATE/100 -j*10), 5, Scalar(255, 0, 255 * p_stop), -1);
+		circle(img_bgr, Point(img_bgr.cols * (int)(COL_LOCATE) / 100, img_bgr.rows * (int)ROW_LOCATE/100 - j*10), 5, Scalar(255, 0, 255 * p_stop), -1);
+		circle(img_filtered, Point(img_filtered.cols * (int)(COL_LOCATE) / 100, img_filtered.rows * (int)ROW_LOCATE/100 -j*10), 5, Scalar(255, 0, 255 * p_stop), -1);
+		//circle(img_bgr, Point(img_bgr.cols * (int)(COL_LOCATE +20) / 100, img_bgr.rows * (int)ROW_LOCATE/100 - j*10), 5, Scalar(255, 0, 255 * p_stop), -1);
+		//circle(img_filtered, Point(img_filtered.cols * (int)(COL_LOCATE +20) / 100, img_filtered.rows * (int)ROW_LOCATE/100 -j*10), 5, Scalar(255, 0, 255 * p_stop), -1);
 	}
 	//cout << "visualize" << endl;
 	imshow("parking_raw",img_bgr);
