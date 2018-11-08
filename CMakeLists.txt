@@ -18,6 +18,7 @@ find_package(catkin REQUIRED COMPONENTS
 	image_transport
 	actionlib_msgs
 	actionlib
+	state_cpp_msg
 )
 
 #find_package(OpenCV 3 REQUIRED)

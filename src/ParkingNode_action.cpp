@@ -31,10 +31,10 @@ void ParkingNode::actionCallback(const state_cpp_msg::MissionPlannerGoalConstPtr
 
 	sign_goal = goal-> mission;
 	if(sign_goal == 1){
-		parking_node.parkingdetect_A();
+		parkingdetect_A();
 	}
 	else if(sign_goal == 2){
-		parking_node.parkingdetect_B();
+		parkingdetect_B();
 	}
 
 	ros::Rate r(10);

@@ -142,12 +142,12 @@ double Parking::steer_control(Mat denoise, int height_percent, int judging_line,
 
 
  int middle = (left_x + right_x) / 2.0;
-
+double angle = 0;
 
 if(sign_goal_ == 1){
-	double angle = atan2(middle+40 - denoise.cols / 2, denoise.rows - line_height) * 180 / PI;
+	angle = atan2(middle+40 - denoise.cols / 2, denoise.rows - line_height) * 180 / PI;
 }else if(sign_goal_ == 2){
-		double angle = atan2(middle-40 - denoise.cols / 2, denoise.rows - line_height) * 180 / PI;
+	angle = atan2(middle-40 - denoise.cols / 2, denoise.rows - line_height) * 180 / PI;
 }
 
 
@@ -160,5 +160,6 @@ if(sign_goal_ == 1){
 
  line(frame, Point(middle, line_height), Point(denoise.cols / 2, denoise.rows), Scalar(255, 255, 255), 4);
  imshow("frame", frame);
- return angle;
+ 
+return angle;
 }
