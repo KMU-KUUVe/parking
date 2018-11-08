@@ -29,17 +29,17 @@ private:
 	unsigned int STOP_THRES = 200; // critria of pixcel values
 	unsigned int ROW_LOCATE = 95; // detect point of row axis. the location is the percentage of top to img raw's rows.
 	unsigned int COL_LOCATE = 50; // detect point of column axis. the location is the percentage of top to img raw's clos.
+	int sign_goal_ = 0;
 
 
 public:
 	cv::Mat deNoise(cv::Mat inputImage);  // Apply Gaussian blurring to the input Image
 	cv::Mat mask(cv::Mat frame);
-	double steer_control(cv::Mat denoise, int height_percent, int judging_line, int &left_x, int &right_x , cv::Mat frame);
+	double steer_control(cv::Mat denoise, int height_percent, int judging_line, int &left_x, int &right_x , cv::Mat frame, int sign_goal);
 
 	int detectstoppoint(cv::Mat img_filtered_,cv::Mat _img_bgr, int stop_change_count, int detect_layer);
 	bool stop_detect(cv::Mat img_filtered, int detect_layer);
 	void VisualizeCircle(cv::Mat _img_bgr, cv::Mat _img_filtered, int detect_layer);
-	std::vector<cv::Point> regression(std::vector<std::vector<cv::Vec4i> > left_right_lines, cv::Mat inputImage, double &angle);
 
 };
 

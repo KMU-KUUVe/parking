@@ -93,10 +93,10 @@ void Parking::VisualizeCircle(cv::Mat _img_bgr, cv::Mat _img_filtered, int detec
 	imshow("parking_filter",img_filtered);
 }
 
-double Parking::steer_control(Mat denoise, int height_percent, int judging_line, int &left_x, int &right_x , Mat frame)
+double Parking::steer_control(Mat denoise, int height_percent, int judging_line, int &left_x, int &right_x , Mat frame, int sign_goal)
 {
 
-
+ sign_goal_ = sign_goal;
  int left_x_num = 0;
  int right_x_num = 0;
 
@@ -144,15 +144,11 @@ double Parking::steer_control(Mat denoise, int height_percent, int judging_line,
  int middle = (left_x + right_x) / 2.0;
 
 
-
- double angle = atan2(middle+40 - denoise.cols / 2, denoise.rows - line_height) * 180 / PI;
- if(angle > 23){
-	 angle = 23;
- }
- else if(angle < -23){
-	 angle = -23;
- }
-
+if(sign_goal_ == 1){
+	double angle = atan2(middle+40 - denoise.cols / 2, denoise.rows - line_height) * 180 / PI;
+}else if(sign_goal_ == 2){
+		double angle = atan2(middle-40 - denoise.cols / 2, denoise.rows - line_height) * 180 / PI;
+}
 
 
  // plot
