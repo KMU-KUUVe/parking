@@ -27,7 +27,7 @@ private:
 	bool old_value = false;
 	unsigned int PIXCEL_N = 30; // number of pixcel to check in stop_detect function.
 	unsigned int STOP_THRES = 200; // critria of pixcel values
-	unsigned int ROW_LOCATE = 95; // detect point of row axis. the location is the percentage of top to img raw's rows.
+	unsigned int ROW_LOCATE = 90; // detect point of row axis. the location is the percentage of top to img raw's rows.
 	unsigned int COL_LOCATE = 50; // detect point of column axis. the location is the percentage of top to img raw's clos.
 	int sign_goal_ = 0;
 

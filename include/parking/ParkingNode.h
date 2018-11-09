@@ -12,7 +12,7 @@
 #include <sensor_msgs/image_encodings.h>
 #include <ackermann_msgs/AckermannDriveStamped.h>
 #include <signal.h>
-//#include "state_cpp_msg/MissionPlannerAction.h"
+#include "state_cpp_msg/MissionPlannerAction.h"
 #include <actionlib/server/simple_action_server.h>
 
 #ifndef PARKINGNODE_H

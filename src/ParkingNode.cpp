@@ -82,7 +82,7 @@ int ParkingNode::laneDetecting()
 {
 	int ncols = frame.cols;
 	int nrows = frame.rows;
-
+	double angle_; 
 
 	int64 t1 = getTickCount();
 	frame_count++;
@@ -95,7 +95,7 @@ int ParkingNode::laneDetecting()
 	img_denoise = lanedetector.deNoise(img_mask2);
 	//imshow("img_denoise", img_denoise);
 	/*indoor test*/
-	bitwise_not(img_denoise,img_denoise);
+	//bitwise_not(img_denoise,img_denoise);
 
 		double angle = parking.steer_control(img_denoise, steer_height, 5, left_x, right_x, img_mask, 1);
 
@@ -107,7 +107,8 @@ int ParkingNode::laneDetecting()
 		waitKey(3);
 		ROS_INFO("it took : %6.2f [ms].  average_time : %6.2f [ms].  frame per second (fps) : %6.2f [frame/s].   steer angle : %5.2f [deg]\n", ms, avg, 1000 / avg , angle);
 
-		return angle * angle_factor_;
+		angle_ =  angle * angle_factor_;
+		return angle_;
 }
 
 
@@ -129,7 +130,7 @@ int ParkingNode::parkingstart()
 	img_denoise = lanedetector.deNoise(img_mask2);
 	//imshow("img_denoise", img_denoise);
 	/*indoor test*/
-	bitwise_not(img_denoise,img_denoise);
+	//bitwise_not(img_denoise,img_denoise);
 
 	parking.VisualizeCircle(frame, img_denoise, 1);
 
@@ -168,66 +169,6 @@ void ParkingNode::parseRawimg(const sensor_msgs::ImageConstPtr& ros_img, cv::Mat
 }
 
 
-bool ParkingNode::run_test()
-{
-	if(test_video_path.empty())
-	{
-		ROS_ERROR("Test is failed. video path is empty! you should set video path by constructor argument");
-		return false;
-	}
-
-	VideoCapture cap;
-	//cap.open("../../kasa.mp4");
-	cap.open(test_video_path);
-
-	if (!cap.isOpened())
-	{
-		ROS_ERROR("Test is failed. video is empty! you should check video path (constructor argument is correct)");
-		return false;
-	}
-
-	while (1) {
-		// Capture frame
-		if (!cap.read(frame))
-			break;
-
-
-		int ncols = frame.cols;
-		int nrows = frame.rows;
-
-
-		int64 t1 = getTickCount();
-		frame_count++;
-
-
-		if(!parkingstart()){
-			cout << "do lane detecting" << endl;
-			steer_control_value_ = laneDetecting();
-		}
-		else{
-			cout << "parking" << endl;
-			steer_control_value_ = 0;
-			destroyWindow("lane_color_filter");
-			destroyWindow("lane_edges");
-			destroyWindow("lane");
-		}
-
-		cout << "throttle : " << throttle_ << "steer : " << steer_control_value_ << endl;
-
-
-
-		int64 t2 = getTickCount();
-		double ms = (t2 - t1) * 1000 / getTickFrequency();
-		sum += ms;
-		avg = sum / (double)frame_count;
-		waitKey(25);
-		//cout << "it took :  " << ms << "ms." << "average_time : " << avg << " frame per second (fps) : " << 1000 / avg << endl;
-
-		printf("it took : %6.2f [ms].  average_time : %6.2f [ms].  frame per second (fps) : %6.2f [frame/s].   steer angle : %5.2f [deg]\n", ms, avg, 1000 / avg , angle);
-	}
-
-}
-
 void ParkingNode::parkingdetect_A()
 {
 	throttle_ = 0;
@@ -242,13 +183,13 @@ void ParkingNode::parkingdetect_A()
 	control_msg = makeControlMsg();
 	control_pub_.publish(control_msg);
 	cout << "throttle : " << throttle_ << "steer : " << steer_control_value_ << endl;
-	ros::Duration(4.8).sleep();
+	ros::Duration(4.3).sleep();
 	throttle_ = 6;
 	steer_control_value_ = 20;
 	control_msg = makeControlMsg();
 	control_pub_.publish(control_msg);
 	cout << "throttle : " << throttle_ << "steer : " << steer_control_value_ << endl;
-	ros::Duration(2.6).sleep();
+	ros::Duration(2.0).sleep();
 	throttle_ = CONST_THROTTLE;
 	steer_control_value_ = 0;
 	control_msg = makeControlMsg();
@@ -266,18 +207,18 @@ void ParkingNode::parkingdetect_B()
 	cout << "throttle : " << throttle_ << "steer : " << steer_control_value_ << endl;
 	ros::Duration(1).sleep();
 	//getRosParamForUpdate();
+	throttle_ = 8;
+	steer_control_value_ = 22;
+	control_msg = makeControlMsg();
+	control_pub_.publish(control_msg);
+	cout << "throttle : " << throttle_ << "steer : " << steer_control_value_ << endl;
+	ros::Duration(4.8).sleep();
 	throttle_ = 7;
-	steer_control_value_ = 13;
+	steer_control_value_ = -21;
 	control_msg = makeControlMsg();
 	control_pub_.publish(control_msg);
 	cout << "throttle : " << throttle_ << "steer : " << steer_control_value_ << endl;
-	ros::Duration(5.3).sleep();
-	throttle_ = 6;
-	steer_control_value_ = -16;
-	control_msg = makeControlMsg();
-	control_pub_.publish(control_msg);
-	cout << "throttle : " << throttle_ << "steer : " << steer_control_value_ << endl;
-	ros::Duration(3.9).sleep();
+	ros::Duration(3.0).sleep();
 	throttle_ = CONST_THROTTLE;
 	steer_control_value_ = 0;
 	control_msg = makeControlMsg();

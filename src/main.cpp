@@ -12,16 +12,9 @@ int main(int argc, char** argv)
 	//do vehicle control first and then do parking.
 	std::cout << "start node" << std::endl;
 
-	/*
-	if(msg == 1){
-		parking_node.parkingdetect_A();
-	}else{
-		parking_node.parkingdetect_B();
-	}
-	*/
+//		parking_node.parkingdetect_A();
+//		parking_node.parkingdetect_B();
 
-	parking_node.parkingdetect_A();
-	std::cout << "control node end" << std::endl;
 	ros::spin();
 
 #else	// using mp4 file
