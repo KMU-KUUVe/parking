@@ -27,26 +27,27 @@ ParkingNode::ParkingNode()
 void ParkingNode::actionCallback(const state_cpp_msg::MissionPlannerGoalConstPtr& goal)
 {
 	cout << "parking actioniCallback called" << endl;
-	mission_start = true;
-	if(change_lane){
-		if(sign_goal == 1){
-			parkingdetect_A();
+	sign_goal = goal->mission;
+	ros::Rate r(10);
+	while(ros::ok()){
+		if(change_lane){
+			if(sign_goal == 1){
+				parkingdetect_A();
+			}
+			else if(sign_goal == 2){
+				parkingdetect_B();
+			}
 		}
-		else if(sign_goal == 2){
-			parkingdetect_B();
-		}
-	}
-	else{
-		ros::Rate r(10);
-		while(ros::ok()){
+		else{
+			mission_start = true;
 			if(mission_cleared){
 				state_cpp_msg::MissionPlannerResult result;
 				as_.setSucceeded(result);
 				mission_start = false;
 				break;
 			}
-			r.sleep();
 		}
+		r.sleep();
 	}
 }
 
@@ -166,7 +167,7 @@ int ParkingNode::parkingstart()
 	img_denoise = lanedetector.deNoise(img_mask2);
 	//imshow("img_denoise", img_denoise);
 	/*indoor test*/
-	bitwise_not(img_denoise,img_denoise);
+	//bitwise_not(img_denoise,img_denoise);
 
 	parking.VisualizeCircle(frame, img_denoise, 1);
 
@@ -207,6 +208,7 @@ void ParkingNode::parseRawimg(const sensor_msgs::ImageConstPtr& ros_img, cv::Mat
 
 void ParkingNode::parkingdetect_A()
 {
+	cout << "parking A" << endl;
 	throttle_ = 0;
 	steer_control_value_ = 0;
 	ackermann_msgs::AckermannDriveStamped control_msg = makeControlMsg();
@@ -236,6 +238,7 @@ void ParkingNode::parkingdetect_A()
 
 void ParkingNode::parkingdetect_B()
 {
+	cout << "parking B" << endl;
 	throttle_ = 0;
 	steer_control_value_ = 0;
 	ackermann_msgs::AckermannDriveStamped control_msg = makeControlMsg();
