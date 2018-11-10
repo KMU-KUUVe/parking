@@ -28,25 +28,25 @@ void ParkingNode::actionCallback(const state_cpp_msg::MissionPlannerGoalConstPtr
 {
 	cout << "parking actioniCallback called" << endl;
 	mission_start = true;
-
-	sign_goal = goal-> mission;
-	if(sign_goal == 1){
-		parkingdetect_A();
-	}
-	else if(sign_goal == 2){
-		parkingdetect_B();
-	}
-
-	ros::Rate r(10);
-
-	while(ros::ok()){
-		if(mission_cleared){
-			state_cpp_msg::MissionPlannerResult result;
-			as_.setSucceeded(result);
-			mission_start = false;
-			break;
+	if(change_lane){
+		if(sign_goal == 1){
+			parkingdetect_A();
 		}
-		r.sleep();
+		else if(sign_goal == 2){
+			parkingdetect_B();
+		}
+	}
+	else{
+		ros::Rate r(10);
+		while(ros::ok()){
+			if(mission_cleared){
+				state_cpp_msg::MissionPlannerResult result;
+				as_.setSucceeded(result);
+				mission_start = false;
+				break;
+			}
+			r.sleep();
+		}
 	}
 }
 
@@ -205,66 +205,6 @@ void ParkingNode::parseRawimg(const sensor_msgs::ImageConstPtr& ros_img, cv::Mat
 }
 
 
-bool ParkingNode::run_test()
-{
-	if(test_video_path.empty())
-	{
-		ROS_ERROR("Test is failed. video path is empty! you should set video path by constructor argument");
-		return false;
-	}
-
-	VideoCapture cap;
-	//cap.open("../../kasa.mp4");
-	cap.open(test_video_path);
-
-	if (!cap.isOpened())
-	{
-		ROS_ERROR("Test is failed. video is empty! you should check video path (constructor argument is correct)");
-		return false;
-	}
-
-	while (1) {
-		// Capture frame
-		if (!cap.read(frame))
-			break;
-
-
-		int ncols = frame.cols;
-		int nrows = frame.rows;
-
-
-		int64 t1 = getTickCount();
-		frame_count++;
-
-
-		if(!parkingstart()){
-			cout << "do lane detecting" << endl;
-			steer_control_value_ = laneDetecting();
-		}
-		else{
-			cout << "parking" << endl;
-			steer_control_value_ = 0;
-			destroyWindow("lane_color_filter");
-			destroyWindow("lane_edges");
-			destroyWindow("lane");
-		}
-
-		cout << "throttle : " << throttle_ << "steer : " << steer_control_value_ << endl;
-
-
-
-		int64 t2 = getTickCount();
-		double ms = (t2 - t1) * 1000 / getTickFrequency();
-		sum += ms;
-		avg = sum / (double)frame_count;
-		waitKey(25);
-		//cout << "it took :  " << ms << "ms." << "average_time : " << avg << " frame per second (fps) : " << 1000 / avg << endl;
-
-		printf("it took : %6.2f [ms].  average_time : %6.2f [ms].  frame per second (fps) : %6.2f [frame/s].   steer angle : %5.2f [deg]\n", ms, avg, 1000 / avg , angle);
-	}
-
-}
-
 void ParkingNode::parkingdetect_A()
 {
 	throttle_ = 0;
@@ -291,7 +231,7 @@ void ParkingNode::parkingdetect_A()
 	control_msg = makeControlMsg();
 	control_pub_.publish(control_msg);
 	cout << "throttle : " << throttle_ << "steer : " << steer_control_value_ << endl;
-	//getRosParamForUpdate();
+	change_lane = false;
 }
 
 void ParkingNode::parkingdetect_B()
@@ -320,5 +260,5 @@ void ParkingNode::parkingdetect_B()
 	control_msg = makeControlMsg();
 	control_pub_.publish(control_msg);
 	cout << "throttle : " << throttle_ << "steer : " << steer_control_value_ << endl;
-	//getRosParamForUpdate();
+	change_lane = false;
 }

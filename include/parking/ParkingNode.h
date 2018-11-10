@@ -24,19 +24,7 @@ class ParkingNode
 {
 public:
     ParkingNode();
-
     ParkingNode(cv::String path);
-
-
-    //Run test that use video file.
-    bool run_test();
-
-    /**
-	 * @brief 카메라로부터 들어온 이미지를 Subscribe 했을 때 호출되는 Callback 함수
-	 *
-	 * @param image 카메라 드라이버 노드에서 보낸 이미지를 받아 포인팅하고있는 포인터
-	 *
-	 */
     void imageCallback(const sensor_msgs::ImageConstPtr& image);
     void actionCallback(const state_cpp_msg::MissionPlannerGoalConstPtr& goal);
     int laneDetecting();
@@ -45,30 +33,9 @@ public:
     int parkingstart();
 
 protected:
-    /**
-	 * @brief 차선 인식과 관련된 파라미터 중 동적으로 바뀔 수 있는 값들을 읽어오는 함수
-	 *
-	 * @details 이 함수는 주기적으로 계속 호출되므로, rosparam을 통해 노드 실행중 동적으로 값들을 바꾸면서 테스트가 가능하다.
-	 */
 	void getRosParamForUpdate();
-
-	/**
-	 * @brief Ros 통신에서 사용하는 이미지 타입을 Opencv의 Mat 타입으로 변환해주는 함수
-	 *
-	 */
 	void parseRawimg(const sensor_msgs::ImageConstPtr& ros_img, cv::Mat& cv_img);
-
-	/**
-	 * @brief make control message
-	 *
-	 */
-    ackermann_msgs::AckermannDriveStamped makeControlMsg();
-
-    /**
-     * @brief lane detecting wrapper
-     *
-     */
-
+  ackermann_msgs::AckermannDriveStamped makeControlMsg();
 
 protected:
   ros::NodeHandle nh_;
@@ -77,23 +44,25 @@ protected:
   actionlib::SimpleActionServer<state_cpp_msg::MissionPlannerAction> as_;
   bool mission_start = false;
   bool mission_cleared = false;
-
-  LaneDetector lanedetector;
   int sign_goal = 0;
+  bool change_lane = true;
+  int CONST_THROTTLE = 4;
+  int throttle_ = 4;
+  int steer_control_value_= 0;
+
+  LaneDetector lanedetector; //Create the class object
 	Parking parking;  // Create the class object
-	cv::Mat frame;
+
+  // image preprocessing
+  cv::Mat frame;
   cv::Mat lane_frame;
   cv::Mat parking_frame;
   cv::Mat img_denoise;
   cv::Mat img_mask;
   cv::Mat img_mask2;
-  int Mask_method = 1;
-  std::vector<cv::Vec4i> lines;
-  std::vector<std::vector<cv::Vec4i> > left_right_lines;
-  std::vector<cv::Point> lane;
-  std::string turn;
+
+  //steer comtrol
 	uchar steer_height = 70;
-	int flag_plot = -1;
 	int i = 0;
 	double avg = 0;
 	double sum = 0;
@@ -102,11 +71,11 @@ protected:
 	double angle = 0;
 	int left_x = 0;
 	int right_x = 0;
-  bool parking_stop = false;
-  int CONST_THROTTLE = 4;
-  int throttle_ = 4;
-  int steer_control_value_= 0;
   double angle_factor_ = 1.0;
+
+  //parking
+  bool parking_stop = false;
+
 	cv::String test_video_path = "";
 };
 

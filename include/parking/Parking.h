@@ -20,8 +20,6 @@ private:
 	double img_size;
 	double img_center;
 
-
-
 	bool p_stop = false;
 	unsigned int stop_count = 0;
 	bool old_value = false;
@@ -36,11 +34,9 @@ public:
 	cv::Mat deNoise(cv::Mat inputImage);  // Apply Gaussian blurring to the input Image
 	cv::Mat mask(cv::Mat frame);
 	double steer_control(cv::Mat denoise, int height_percent, int judging_line, int &left_x, int &right_x , cv::Mat frame, int sign_goal);
-
 	int detectstoppoint(cv::Mat img_filtered_,cv::Mat _img_bgr, int stop_change_count, int detect_layer);
 	bool stop_detect(cv::Mat img_filtered, int detect_layer);
 	void VisualizeCircle(cv::Mat _img_bgr, cv::Mat _img_filtered, int detect_layer);
-
 };
 
 #endif
