@@ -161,7 +161,6 @@ if(sign_goal_ == 1){
  circle(frame, Point(right_x, line_height), 5, Scalar(255, 0, 0), 5);
 
  line(frame, Point(middle, line_height), Point(denoise.cols / 2, denoise.rows), Scalar(255, 255, 255), 4);
- imshow("frame", frame);
  
 return angle;
 }
