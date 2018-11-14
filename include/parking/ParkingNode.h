@@ -39,8 +39,8 @@ protected:
 
 protected:
   ros::NodeHandle nh_;
-	ros::Publisher control_pub_;	// Controll 메시지를 Publish하는 Publisher
-	ros::Subscriber image_sub_;		// 가공되지 않은 raw image 메시지를 Subscribe하는 Subscriber
+  ros::Publisher control_pub_;	// Controll 메시지를 Publish하는 Publisher
+  ros::Subscriber image_sub_;		// 가공되지 않은 raw image 메시지를 Subscribe하는 Subscriber
   actionlib::SimpleActionServer<state_cpp_msg::MissionPlannerAction> as_;
   bool mission_start = false;
   bool mission_cleared = false;
@@ -62,7 +62,7 @@ protected:
   cv::Mat img_mask2;
 
   //steer comtrol
-	uchar steer_height = 70;
+	int steer_height = 70;
 	int i = 0;
 	double avg = 0;
 	double sum = 0;
