@@ -25,18 +25,21 @@ private:
 	bool old_value = false;
 	unsigned int PIXCEL_N = 30; // number of pixcel to check in stop_detect function.
 	unsigned int STOP_THRES = 200; // critria of pixcel values
-	unsigned int ROW_LOCATE = 80; // detect point of row axis. the location is the percentage of top to img raw's rows.
+	unsigned int ROW_LOCATE = 90; // detect point of row axis. the location is the percentage of top to img raw's rows.
 	unsigned int COL_LOCATE = 50; // detect point of column axis. the location is the percentage of top to img raw's clos.
 	int sign_goal_ = 0;
+ 	unsigned int LANE_ROW_LOCATE = 70;
 
 
 public:
 	cv::Mat deNoise(cv::Mat inputImage);  // Apply Gaussian blurring to the input Image
 	cv::Mat mask(cv::Mat frame);
-	double steer_control(cv::Mat denoise, int height_percent, int judging_line, int &left_x, int &right_x , cv::Mat frame, int sign_goal);
+	double steer_control(cv::Mat denoise, int height_percent, int judging_line, cv::Mat frame, int sign_goal, int right_detect_offset, int left_detect_offset);
 	int detectstoppoint(cv::Mat img_filtered_,cv::Mat _img_bgr, int stop_change_count, int detect_layer);
-	bool stop_detect(cv::Mat img_filtered, int detect_layer);
+	bool detectlanestop(cv::Mat img_filtered_,cv::Mat _img_bgr, int stop_change_count, int detect_layer);
+	bool stop_detect(cv::Mat img_filtered, int detect_layer, int row_locate);
 	void VisualizeCircle(cv::Mat _img_bgr, cv::Mat _img_filtered, int detect_layer);
+	void filter_colors(cv::Mat _img_bgr, cv::Mat &img_filtered);
 };
 
 #endif

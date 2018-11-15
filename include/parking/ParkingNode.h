@@ -48,33 +48,31 @@ protected:
   bool change_lane = true;
   int CONST_THROTTLE = 4;
   int throttle_ = 4;
-  int steer_control_value_= 0;
+	int steer_control_value_= 0;
 
-  LaneDetector lanedetector; //Create the class object
+	LaneDetector lanedetector; //Create the class object
 	Parking parking;  // Create the class object
 
   // image preprocessing
-  cv::Mat frame;
-  cv::Mat lane_frame;
-  cv::Mat parking_frame;
-  cv::Mat img_denoise;
-  cv::Mat img_mask;
-  cv::Mat img_mask2;
+	cv::Mat frame;
+	cv::Mat lane_frame;
+	cv::Mat parking_frame;
+	cv::Mat img_denoise;
+	cv::Mat img_mask;
+	cv::Mat img_mask2;
 
   //steer comtrol
 	int steer_height = 70;
 	int i = 0;
-	double avg = 0;
-	double sum = 0;
-	int frame_count = 0;
 	int j = 0;
 	double angle = 0;
-	int left_x = 0;
-	int right_x = 0;
-  double angle_factor_ = 1.0;
+  	double angle_factor_ = 1.0;
+	int d_point = 0;
+
+	bool lane_detect = true;
 
   //parking
-  bool parking_stop = false;
+  	bool parking_stop = false;
 
 	cv::String test_video_path = "";
 };

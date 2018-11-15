@@ -64,25 +64,33 @@ void ParkingNode::imageCallback(const sensor_msgs::ImageConstPtr& image)
 			cerr << e.what() << endl;
 		}
 
-		if(parkingstart() <= 1){
+		if(lane_detect){
 			cout << "do lane detecting" << endl;
 			steer_control_value_ = laneDetecting();
-			parking_stop = false;
-			mission_cleared = false;
+			if(parking.detectlanestop(img_denoise, frame, 1, 1)) {
+				parking_stop = false;
+				lane_detect = false;
+				mission_cleared = false;
+			}
 		}
-		else if(parkingstart() < 3){
-			cout << "parking" << endl;
-			steer_control_value_ = 0;
-			parking_stop = false;
-			mission_cleared = false;
+		else {
+			int parking_count = parkingstart();
+
+
+			if(parking_count < 3){
+				cout << "stop lane detecting and start parking" << endl;
+				parking_stop = false;
+				mission_cleared = false;
+			}
+			else{
+				cout << "stop" << endl;
+				steer_control_value_ = 0;
+				throttle_ = 0;
+				parking_stop = true;
+				mission_cleared = true;
+				destroyAllWindows();
+			}
 		}
-		else{
-			cout << "stop" << endl;
-			steer_control_value_ = 0;
-			throttle_ = 0;
-			parking_stop = true;
-			mission_cleared = true;
-	}
 
 	cout << "throttle : " << throttle_ << "steer : " << steer_control_value_ << endl;
 	ackermann_msgs::AckermannDriveStamped control_msg = makeControlMsg();
@@ -114,9 +122,6 @@ int ParkingNode::laneDetecting()
 	double angle_ =  0;
 
 
-	int64 t1 = getTickCount();
-	frame_count++;
-
 	resize(frame, lane_frame, Size(ncols / resize_n, nrows / resize_n));
 	img_mask = lanedetector.mask(lane_frame);
 	//imshow("img_mask", img_mask);
@@ -125,19 +130,13 @@ int ParkingNode::laneDetecting()
 	img_denoise = lanedetector.deNoise(img_mask2);
 	//imshow("img_denoise", img_denoise);
 	/*indoor test*/
-	bitwise_not(img_denoise,img_denoise);
+	//bitwise_not(img_denoise,img_denoise);
 
-		double angle = parking.steer_control(img_denoise, steer_height, 5, left_x, right_x, img_mask, sign_goal);
+		double angle = parking.steer_control(img_denoise, steer_height, 5, img_mask, sign_goal, 40, 60);
 
-		int64 t2 = getTickCount();
-		double ms = (t2 - t1) * 1000 / getTickFrequency();
-		sum += ms;
-		avg = sum / (double)frame_count;
-		//cout << "it took :  " << ms << "ms." << "average_time : " << avg << " frame per second (fps) : " << 1000 / avg << endl;
 		waitKey(3);
-		ROS_INFO("it took : %6.2f [ms].  average_time : %6.2f [ms].  frame per second (fps) : %6.2f [frame/s].   steer angle : %5.2f [deg]\n", ms, avg, 1000 / avg , angle);
 
-		angle_ = angle_ * angle_factor_;
+		angle_ = angle * angle_factor_;
 		if(angle_ > 23){
 			angle_ = 23;
 		}
@@ -155,43 +154,32 @@ int ParkingNode::parkingstart()
 	int ncols = frame.cols;
 	int nrows = frame.rows;
 
-	int64 t1 = getTickCount();
-	frame_count++;
-
-	resize(frame, parking_frame, Size(ncols / resize_n, nrows / resize_n));
 	resize(frame, lane_frame, Size(ncols / resize_n, nrows / resize_n));
 	img_mask = lanedetector.mask(lane_frame);
 	//imshow("img_mask", img_mask);
-	lanedetector.filter_colors(img_mask, img_mask2);
+	parking.filter_colors(img_mask, img_mask2);
 	//imshow("img_mask2", img_mask2);
 	img_denoise = lanedetector.deNoise(img_mask2);
 	//imshow("img_denoise", img_denoise);
 	/*indoor test*/
 	//bitwise_not(img_denoise,img_denoise);
 
+	double angle = parking.steer_control(img_denoise, steer_height, 5, img_mask, sign_goal, 0, 0);
+
+	angle = angle * angle_factor_;
+	if(angle > 23){
+		angle = 23;
+	}
+	else if(angle < -23){
+		angle = -23;
+	}
+
+	steer_control_value_ = angle;
+
 	parking.VisualizeCircle(frame, img_denoise, 1);
 
 	return parking.detectstoppoint(img_denoise, frame, 3, 1);
 
-	/*
-	if(parking.detectstoppoint(img_denoise, frame, 3, 1) >= 3){
-		throttle_ = 0;
-		if(!parking_stop){
-			parking_stop = true;
-		}
-		return true;
-	}
-	*/
-
-	int64 t2 = getTickCount();
-	double ms = (t2 - t1) * 1000 / getTickFrequency();
-	sum += ms;
-	avg = sum / (double)frame_count;
-	//cout << "it took :  " << ms << "ms." << "average_time : " << avg << " frame per second (fps) : " << 1000 / avg << endl;
-	waitKey(3);
-	//ROS_INFO("it took : %6.2f [ms].  average_time : %6.2f [ms].  frame per second (fps) : %6.2f [frame/s].   steer angle : %5.2f [deg]\n", ms, avg, 1000 / avg , angle);
-
-	return false;
 }
 
 void ParkingNode::parseRawimg(const sensor_msgs::ImageConstPtr& ros_img, cv::Mat& cv_img)
@@ -216,18 +204,18 @@ void ParkingNode::parkingdetect_A()
 	cout << "throttle : " << throttle_ << "steer : " << steer_control_value_ << endl;
 	ros::Duration(1).sleep();
 	//getRosParamForUpdate();
-	throttle_ = 7;
-	steer_control_value_ = -22;
+	throttle_ = 8;
+	steer_control_value_ = -25;
 	control_msg = makeControlMsg();
 	control_pub_.publish(control_msg);
 	cout << "throttle : " << throttle_ << "steer : " << steer_control_value_ << endl;
-	ros::Duration(4.3).sleep();
-	throttle_ = 6;
+	ros::Duration(5.3).sleep();
+	throttle_ = 7;
 	steer_control_value_ = 20;
 	control_msg = makeControlMsg();
 	control_pub_.publish(control_msg);
 	cout << "throttle : " << throttle_ << "steer : " << steer_control_value_ << endl;
-	ros::Duration(2.0).sleep();
+	ros::Duration(2.7).sleep();
 	throttle_ = CONST_THROTTLE;
 	steer_control_value_ = 0;
 	control_msg = makeControlMsg();
@@ -251,9 +239,9 @@ void ParkingNode::parkingdetect_B()
 	control_msg = makeControlMsg();
 	control_pub_.publish(control_msg);
 	cout << "throttle : " << throttle_ << "steer : " << steer_control_value_ << endl;
-	ros::Duration(4.8).sleep();
+	ros::Duration(5.0).sleep();
 	throttle_ = 7;
-	steer_control_value_ = -21;
+	steer_control_value_ = -22;
 	control_msg = makeControlMsg();
 	control_pub_.publish(control_msg);
 	cout << "throttle : " << throttle_ << "steer : " << steer_control_value_ << endl;

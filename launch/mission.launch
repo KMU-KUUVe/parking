@@ -1,6 +1,6 @@
 <launch>
     <!-- parking-->
-	<node pkg="parking" type="parking" name="parking">
+	<node pkg="parking" type="parking" name="parking" output="screen">
 		<!-- scale platform -->
 		<param name="throttle" value="4" />
 		<param name="angle_factor" type="double" value="1.0" />
