@@ -239,13 +239,13 @@ void ParkingNode::parkingdetect_B()
 	control_msg = makeControlMsg();
 	control_pub_.publish(control_msg);
 	cout << "throttle : " << throttle_ << "steer : " << steer_control_value_ << endl;
-	ros::Duration(5.0).sleep();
+	ros::Duration(4.3).sleep();
 	throttle_ = 7;
 	steer_control_value_ = -22;
 	control_msg = makeControlMsg();
 	control_pub_.publish(control_msg);
 	cout << "throttle : " << throttle_ << "steer : " << steer_control_value_ << endl;
-	ros::Duration(3.0).sleep();
+	ros::Duration(2.6).sleep();
 	throttle_ = CONST_THROTTLE;
 	steer_control_value_ = 0;
 	control_msg = makeControlMsg();
